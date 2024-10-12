@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Котики-ловцы</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB; /* Небесно-голубой фон */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            background: url('https://via.placeholder.com/400x600/9c7148/FFFFFF?text=Wooden+Background') no-repeat center center;
+            background-size: cover;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        #game-field {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #FFD700; /* Золотой цвет для лунок */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .cell:empty {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        #score, #time {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #start-button {
+            font-size: 22px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #start-button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .control-btn {
+            font-size: 24px;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score">Счет: 0</div>
+        <div id="time">Время: 60</div>
+        <div id="game-field"></div>
+        <button id="start-button">Начать игру</button>
+        <div id="controls">
+            <button class="control-btn" id="left">⬅️</button>
+            <button class="control-btn" id="up">⬆️</button>
+            <button class="control-btn" id="down">⬇️</button>
+            <button class="control-btn" id="right">➡️</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let score = 0;
+        let timeRemaining = 60;
+        let isGameActive = false;
+        let catPosition = {x: 2, y: 2};
+        let fishPositions = [];
+
+        const gameField = document.getElementById('game-field');
+        const startButton = document.getElementById('start-button');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+
+        function createGameField() {
+            gameField.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                gameField.appendChild(cell);
+            }
+        }
+
+        function updateGameField() {
+            const cells = gameField.getElementsByClassName('cell');
+            for (let i = 0; i < cells.length; i++) {
+                const x = i % 5;
+                const y = Math.floor(i / 5);
+                if (x === catPosition.x && y === catPosition.y) {
+                    cells[i].textContent = '🐱';
+                    cells[i].style.transform = 'scale(1.1)';
+                } else if (fishPositions.some(pos => pos.x === x && pos.y === y)) {
+                    cells[i].textContent = '🐟';
+                    cells[i].style.transform = 'rotate(0deg)';
+                    cells[i].style.animation = 'wiggle 1s ease-in-out infinite';
+                } else {
+                    cells[i].textContent = '';
+                    cells[i].style.transform = 'scale(1)';
+                    cells[i].style.animation = '';
+                }
+            }
+        }
+
+        function startGame() {
+            score = 0;
+            timeRemaining = 60;
+            isGameActive = true;
+            catPosition = {x: 2, y: 2};
+            fishPositions = [];
+            updateGameField();
+            startButton.textContent = 'Завершить игру';
+            gameInterval = setInterval(gameLoop, 1000);
+        }
+
+        function endGame() {
+            isGameActive = false;
+            clearInterval(gameInterval);
+            startButton.textContent = 'Начать игру';
+            tg.sendData(JSON.stringify({action: 'gameOver', score: score}));
+        }
+
+        function gameLoop() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                timeElement.textContent = `Время: ${timeRemaining}`;
+                if (Math.random() < 0.3) {
+                    spawnFish();
+                }
+                updateGameField();
+            } else {
+                endGame();
+            }
+        }
+
+        function spawnFish() {
+            if (fishPositions.length < 5) {
+                let newPosition;
+                do {
+                    newPosition = {
+                        x: Math.floor(Math.random() * 5),
+                        y: Math.floor(Math.random() * 5)
+                    };
+                } while (fishPositions.some(pos => pos.x === newPosition.x && pos.y === newPosition.y) ||
+                         (newPosition.x === catPosition.x && newPosition.y === catPosition.y));
+                fishPositions.push(newPosition);
+            }
+        }
+
+        function moveCat(dx, dy) {
+            if (!isGameActive) return;
+            catPosition.x = Math.max(0, Math.min(4, catPosition.x + dx));
+            catPosition.y = Math.max(0, Math.min(4, catPosition.y + dy));
+            
+            const fishIndex = fishPositions.findIndex(pos => pos.x === catPosition.x && pos.y === catPosition.y);
+            if (fishIndex !== -1) {
+                fishPositions.splice(fishIndex, 1);
+                score++;
+                scoreElement.textContent = `Счет: ${score}`;
+            }
+            updateGameField();
+        }
+
+        startButton.addEventListener('click', () => {
+            if (isGameActive) {
+                endGame();
+            } else {
+                startGame();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': moveCat(0, -1); break;
+                case 'ArrowDown': moveCat(0, 1); break;
+                case 'ArrowLeft': moveCat(-1, 0); break;
+                case 'ArrowRight': moveCat(1, 0); break;
+            }
+        });
+
+        // Добавляем обработчики для кнопок управления на смартфонах
+        document.getElementById('up').addEventListener('click', () => moveCat(0, -1));
+        document.getElementById('down').addEventListener('click', () => moveCat(0, 1));
+        document.getElementById('left').addEventListener('click', () => moveCat(-1, 0));
+        document.getElementById('right').addEventListener('click', () => moveCat(1, 0));
+
+        createGameField();
+
+        // Добавляем поддержку свайпов для смартфонов
+        let touchStartX = 0;
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        document.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+        }, false);
+
+        function handleSwipe(startX, startY, endX, endY) {
+            let deltaX = endX - startX;
+            let deltaY = endY - startY;
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0) moveCat(1, 0);
+                else moveCat(-1, 0);
+            } else {
+                if (deltaY > 0) moveCat(0, 1);
+                else moveCat(0, -1);
+            }
+        }
+    </script>
+</body>
+</html>
