@@ -1,211 +1,230 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
-    <title>Work Poland</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 16px;
-            font-family: 'Montserrat', -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Work Poland</title>
+  <!-- Подключаем интересный шрифт Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
 
-        .welcome-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            font-size: 28px;
-            font-weight: 600;
-            text-align: center;
-            opacity: 0;
-            animation: welcomeAnimation 3s forwards;
-            white-space: nowrap;
-            z-index: 1000;
-        }
+    body {
+      padding: 16px;
+      font-family: 'Poppins', -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+    }
 
-        @keyframes welcomeAnimation {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            40% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.1);
-            }
-            80% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
+    /* Приветственное сообщение теперь позиционируется с отступами 2 см сверху и снизу */
+    .welcome-message {
+      position: fixed;
+      top: 2cm;
+      bottom: 2cm;
+      left: 0;
+      right: 0;
+      margin: auto;
+      font-size: 28px;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      /* Убираем translate для вертикального центрирования – масштабирование остаётся */
+      transform: scale(0.5);
+      animation: welcomeAnimation 3s forwards;
+      white-space: nowrap;
+      z-index: 1000;
+    }
 
-        .intro {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 0.5s 3s forwards;
-            padding: 40px 0;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    @keyframes welcomeAnimation {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      80% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1);
+      }
+    }
 
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    /* Блок с интро – кнопки меню */
+    .intro {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp 0.5s 3s forwards;
+      padding: 40px 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-        .menu-button {
-            display: block;
-            width: calc(100% - 32px);
-            padding: 20px 16px;
-            margin: 16px auto;
-            border: none;
-            border-radius: 16px;
-            background: #f8f9fa;
-            font-size: 18px;
-            font-weight: 500;
-            text-align: center;
-            color: #2c3e50;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        .menu-button:active {
-            transform: scale(0.98);
-            background: #f1f3f5;
-        }
+    .menu-button {
+      display: block;
+      width: calc(100% - 32px);
+      padding: 20px 16px;
+      margin: 16px auto;
+      border: none;
+      border-radius: 16px;
+      background: #f8f9fa;
+      font-size: 18px;
+      font-weight: 500;
+      text-align: center;
+      color: #2c3e50;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
 
-        .menu-button:nth-child(1) { animation-delay: 3.2s; }
-        .menu-button:nth-child(2) { animation-delay: 3.3s; }
-        .menu-button:nth-child(3) { animation-delay: 3.4s; }
+    .menu-button:active {
+      transform: scale(0.98);
+      background: #f1f3f5;
+    }
 
-        .back-btn {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: #f8f9fa;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            color: #2c3e50;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+    .menu-button:nth-child(1) { animation-delay: 3.2s; }
+    .menu-button:nth-child(2) { animation-delay: 3.3s; }
+    .menu-button:nth-child(3) { animation-delay: 3.4s; }
 
-        .job-list {
-            padding: 40px 0;
-            opacity: 0;
-            animation: fadeIn 0.5s forwards;
-        }
+    .back-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #f8f9fa;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #2c3e50;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
 
-        .job-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            margin: 16px auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            animation: slideIn 0.3s forwards;
-            opacity: 0;
-            transform: translateY(20px);
-            max-width: 600px;
-        }
+    /* Центрируем блок вакансий по вертикали – отступы сверху и снизу равны */
+    .job-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: calc(100vh - 32px); /* учитываем высоту кнопки Назад */
+      animation: fadeIn 0.5s forwards;
+      padding: 40px 0;
+    }
 
-        .job-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1a1a1a;
-        }
+    .job-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin: 16px auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      animation: slideIn 0.3s forwards;
+      opacity: 0;
+      transform: translateY(20px);
+      max-width: 600px;
+    }
 
-        .job-info {
-            color: #4a5568;
-            margin-bottom: 8px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
+    .job-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
 
-        .more-btn, .close-btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            margin-top: 16px;
-            transition: all 0.3s ease;
-        }
+    .job-info {
+      color: #4a5568;
+      margin-bottom: 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
 
-        .more-btn {
-            background: #0088cc;
-            color: white;
-        }
+    .more-btn, .close-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
 
-        .close-btn {
-            background: #ff4444;
-            color: white;
-        }
+    .more-btn {
+      background: #0088cc;
+      color: white;
+    }
 
-        .description {
-            margin-top: 16px;
-            white-space: pre-wrap;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #2c3e50;
-        }
+    .close-btn {
+      background: #ff4444;
+      color: white;
+    }
 
-        .contact-link {
-            display: inline-block;
-            margin-top: 16px;
-            color: #0088cc;
-            text-decoration: none;
-            font-weight: 500;
-        }
+    .description {
+      margin-top: 16px;
+      white-space: pre-wrap;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
+    .contact-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: #0088cc;
+      text-decoration: none;
+      font-weight: 500;
+    }
 
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="app"></div>
+  <div id="app"></div>
 
-    <script>
-        const jobs = [
-            {
-                id: 1,
-                title: "Вузковый (склад чипсов)",
-                salary: "27,00 zl netto/час",
-                totalSalary: "от 5 400 zl (200 часов) до 6 480 zl (240 часов)",
-                hours: "200-240 часов в месяц",
-                schedule: "Понедельник – Пятница",
-                forWomen: false,
-                forCIS: true,
-                description: `Вузковый (склад чипсов) – Работа в Польше 🇵🇱
+  <script>
+    const jobs = [
+      {
+        id: 1,
+        title: "Вузковый (склад чипсов)",
+        salary: "27,00 zl netto/час",
+        totalSalary: "от 5 400 zl (200 часов) до 6 480 zl (240 часов)",
+        hours: "200-240 часов в месяц",
+        schedule: "Понедельник – Пятница",
+        forWomen: false,
+        forCIS: true,
+        description: `Вузковый (склад чипсов) – Работа в Польше 🇵🇱
 📢 Принимаем граждан Украины 🇺🇦, Молдовы 🇲🇩 и Беларуси 🇧🇾 
 Только Мужчины до 50 лет!
 
@@ -221,73 +240,81 @@
 
 ✔️ Для студентов (35,00 zl/час):
 от 7 000 zl (200 часов) до 8 400 zl (240 часов)`
-            }
-        ];
+      }
+    ];
 
-        const app = document.getElementById('app');
-        let currentView = 'menu';
-        let currentCategory = null;
-        let expandedJob = null;
+    const app = document.getElementById('app');
+    let currentView = 'menu';
+    let currentCategory = null;
+    let expandedJob = null;
+    // Флаг, чтобы анимация приветствия показывалась только при первой загрузке
+    let initialLoad = true;
 
-        function showMenu() {
-            app.innerHTML = `
-                <div class="welcome-message">Работа в Польше 🇵🇱</div>
-                <div class="intro">
-                    <button class="menu-button" onclick="showJobs('all')">Все актуальные вакансии</button>
-                    <button class="menu-button" onclick="showJobs('women')">Только для женщин</button>
-                    <button class="menu-button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
-                </div>
-            `;
-        }
+    function showMenu() {
+      // Если это первая загрузка – показываем приветственное сообщение с анимацией
+      let welcomeHTML = '';
+      if (initialLoad) {
+        welcomeHTML = `<div class="welcome-message">Работа в Польше 🇵🇱</div>`;
+        initialLoad = false;
+      }
+      app.innerHTML = `
+        ${welcomeHTML}
+        <div class="intro">
+          <button class="menu-button" onclick="showJobs('all')">Все актуальные вакансии</button>
+          <button class="menu-button" onclick="showJobs('women')">Только для женщин</button>
+          <button class="menu-button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
+        </div>
+      `;
+    }
 
-        function showJobs(category) {
-            currentView = 'jobs';
-            currentCategory = category;
-            const filteredJobs = filterJobs(category);
-            
-            app.innerHTML = `
-                <button class="back-btn" onclick="showMenu()">Назад</button>
-                <div class="job-list">
-                    ${filteredJobs.map((job, index) => `
-                        <div class="job-card" style="animation-delay: ${index * 0.1}s">
-                            <div class="job-title">${job.title}</div>
-                            <div class="job-info">${job.salary}</div>
-                            <div class="job-info">${job.totalSalary}</div>
-                            <div class="job-info">${job.hours}</div>
-                            <div class="job-info">${job.schedule}</div>
-                            ${expandedJob === job.id ? `
-                                <div class="description">${job.description}</div>
-                                <a href="https://t.me/your_username" class="contact-link">Связаться с рекрутером</a>
-                                <button class="close-btn" onclick="toggleJob(${job.id})">Закрыть</button>
-                            ` : `
-                                <button class="more-btn" onclick="toggleJob(${job.id})">Подробнее</button>
-                            `}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+    function showJobs(category) {
+      currentView = 'jobs';
+      currentCategory = category;
+      const filteredJobs = filterJobs(category);
 
-        function filterJobs(category) {
-            switch(category) {
-                case 'all':
-                    return jobs;
-                case 'women':
-                    return jobs.filter(job => job.forWomen);
-                case 'cis':
-                    return jobs.filter(job => job.forCIS);
-                default:
-                    return [];
-            }
-        }
+      app.innerHTML = `
+        <button class="back-btn" onclick="showMenu()">Назад</button>
+        <div class="job-list">
+          ${filteredJobs.map((job, index) => `
+            <div class="job-card" style="animation-delay: ${index * 0.1}s">
+              <div class="job-title">${job.title}</div>
+              <div class="job-info">${job.salary}</div>
+              <div class="job-info">${job.totalSalary}</div>
+              <div class="job-info">${job.hours}</div>
+              <div class="job-info">${job.schedule}</div>
+              ${expandedJob === job.id ? `
+                <div class="description">${job.description}</div>
+                <a href="https://t.me/your_username" class="contact-link">Связаться с рекрутером</a>
+                <button class="close-btn" onclick="toggleJob(${job.id})">Закрыть</button>
+              ` : `
+                <button class="more-btn" onclick="toggleJob(${job.id})">Подробнее</button>
+              `}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
 
-        function toggleJob(id) {
-            expandedJob = expandedJob === id ? null : id;
-            showJobs(currentCategory);
-        }
+    function filterJobs(category) {
+      switch (category) {
+        case 'all':
+          return jobs;
+        case 'women':
+          return jobs.filter(job => job.forWomen);
+        case 'cis':
+          return jobs.filter(job => job.forCIS);
+        default:
+          return [];
+      }
+    }
 
-        // Запускаем приложение
-        showMenu();
-    </script>
+    function toggleJob(id) {
+      expandedJob = expandedJob === id ? null : id;
+      showJobs(currentCategory);
+    }
+
+    // Запускаем приложение
+    showMenu();
+  </script>
 </body>
 </html>
