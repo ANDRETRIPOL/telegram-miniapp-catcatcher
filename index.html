@@ -2,143 +2,152 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Work Poland</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --tg-theme-bg-color: var(--tg-theme-bg-color, #fff);
+            --tg-theme-text-color: var(--tg-theme-text-color, #000);
+            --tg-theme-hint-color: var(--tg-theme-hint-color, #999);
+            --tg-theme-link-color: var(--tg-theme-link-color, #2481cc);
+            --tg-theme-button-color: var(--tg-theme-button-color, #2481cc);
+            --tg-theme-button-text-color: var(--tg-theme-button-text-color, #fff);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
         body {
-            background: #fff;
-            padding: 20px;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            padding: 0;
+            margin: 0;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            padding: 16px;
         }
 
         .intro {
             text-align: center;
-            padding: 40px 0;
-            animation: fadeIn 0.5s ease;
+            padding: 20px 0;
         }
 
         .intro h1 {
-            font-size: 32px;
-            margin-bottom: 40px;
-            animation: scaleIn 0.5s ease;
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: var(--tg-theme-text-color);
         }
 
         .button {
             display: block;
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #f5f5f5;
+            padding: 12px 16px;
+            margin: 8px 0;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            text-align: center;
+            transition: opacity 0.2s;
         }
 
-        .button:hover {
-            background: #e5e5e5;
-            transform: translateY(-2px);
+        .button:active {
+            opacity: 0.8;
         }
 
         .back-button {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            background: #f5f5f5;
+            top: 8px;
+            right: 8px;
+            padding: 8px 12px;
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             border: none;
             border-radius: 50%;
+            z-index: 1000;
             cursor: pointer;
         }
 
         .job-card {
-            background: white;
-            padding: 20px;
-            margin: 15px 0;
+            background: var(--tg-theme-bg-color);
+            padding: 16px;
+            margin: 8px 0;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-
-        .job-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--tg-theme-hint-color);
         }
 
         .job-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color);
         }
 
         .job-info {
-            color: #666;
-            margin-bottom: 5px;
+            color: var(--tg-theme-hint-color);
+            margin-bottom: 4px;
+            font-size: 14px;
         }
 
         .more-button {
-            background: #0088cc;
-            color: white;
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
-            margin-top: 10px;
+            margin-top: 8px;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .close-button {
             color: #ff4444;
             background: none;
             border: none;
-            margin-top: 10px;
+            margin-top: 8px;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .full-description {
-            margin-top: 15px;
+            margin-top: 12px;
             white-space: pre-wrap;
             font-size: 14px;
+            color: var(--tg-theme-text-color);
         }
 
         .telegram-link {
             display: inline-block;
-            margin-top: 10px;
-            color: #0088cc;
+            margin-top: 8px;
+            color: var(--tg-theme-link-color);
             text-decoration: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.5); }
-            to { transform: scale(1); }
-        }
-
         .jobs-list {
-            animation: fadeIn 0.5s ease;
+            padding-bottom: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app"></div>
+    <div id="app"></div>
 
     <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрываем на всю высоту
+
         // Данные о вакансиях
         const jobsData = [
             {
@@ -175,13 +184,24 @@
         let selectedJob = null;
         const app = document.getElementById('app');
 
+        // Обработчик основного цвета темы Telegram
+        function setThemeClass() {
+            document.documentElement.className = tg.colorScheme;
+        }
+
+        // Подписываемся на изменение темы
+        tg.onEvent('themeChanged', setThemeClass);
+        setThemeClass();
+
         function renderIntro() {
             app.innerHTML = `
-                <div class="intro">
-                    <h1>Work Poland</h1>
-                    <button class="button" onclick="showJobs('all')">Все актуальные вакансии</button>
-                    <button class="button" onclick="showJobs('women')">Только для женщин</button>
-                    <button class="button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
+                <div class="container">
+                    <div class="intro">
+                        <h1>Work Poland</h1>
+                        <button class="button" onclick="showJobs('all')">Все актуальные вакансии</button>
+                        <button class="button" onclick="showJobs('women')">Только для женщин</button>
+                        <button class="button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
+                    </div>
                 </div>
             `;
         }
@@ -208,24 +228,26 @@
         function renderJobs() {
             const filteredJobs = filterJobs(selectedCategory);
             app.innerHTML = `
-                <button class="back-button" onclick="goBack()">←</button>
-                <div class="jobs-list">
-                    ${filteredJobs.map(job => `
-                        <div class="job-card" id="job-${job.id}">
-                            <div class="job-title">${job.title}</div>
-                            <div class="job-info">${job.salary}</div>
-                            <div class="job-info">${job.totalSalary}</div>
-                            <div class="job-info">${job.hours}</div>
-                            <div class="job-info">${job.schedule}</div>
-                            ${selectedJob === job.id ? `
-                                <div class="full-description">${job.fullDescription}</div>
-                                <a href="https://t.me/your_username" class="telegram-link" target="_blank">Связаться с рекрутером</a>
-                                <button class="close-button" onclick="toggleJobDetails(${job.id})">Закрыть</button>
-                            ` : `
-                                <button class="more-button" onclick="toggleJobDetails(${job.id})">Подробнее</button>
-                            `}
-                        </div>
-                    `).join('')}
+                <div class="container">
+                    <button class="back-button" onclick="goBack()">←</button>
+                    <div class="jobs-list">
+                        ${filteredJobs.map(job => `
+                            <div class="job-card" id="job-${job.id}">
+                                <div class="job-title">${job.title}</div>
+                                <div class="job-info">${job.salary}</div>
+                                <div class="job-info">${job.totalSalary}</div>
+                                <div class="job-info">${job.hours}</div>
+                                <div class="job-info">${job.schedule}</div>
+                                ${selectedJob === job.id ? `
+                                    <div class="full-description">${job.fullDescription}</div>
+                                    <a href="https://t.me/your_username" class="telegram-link" target="_blank">Связаться с рекрутером</a>
+                                    <button class="close-button" onclick="toggleJobDetails(${job.id})">Закрыть</button>
+                                ` : `
+                                    <button class="more-button" onclick="toggleJobDetails(${job.id})">Подробнее</button>
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
         }
@@ -236,13 +258,23 @@
         }
 
         function goBack() {
-            currentView = 'intro';
-            selectedJob = null;
-            renderIntro();
+            if (currentView === 'jobs') {
+                currentView = 'intro';
+                selectedJob = null;
+                renderIntro();
+            }
         }
 
-        // Инициализация приложения
-        renderIntro();
+        // Инициализация Main Button в Telegram (если нужно)
+        tg.MainButton.setText('Связаться с рекрутером');
+        tg.MainButton.onClick(() => {
+            window.open('https://t.me/your_username', '_blank');
+        });
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            renderIntro();
+        });
     </script>
 </body>
 </html>
