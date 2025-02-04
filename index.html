@@ -4,32 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Poland</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.4/framer-motion.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            background: #fff;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
-        .job-card {
-            transition: all 0.3s ease;
+
+        body {
+            background: #fff;
+            padding: 20px;
         }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .intro {
+            text-align: center;
+            padding: 40px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .intro h1 {
+            font-size: 32px;
+            margin-bottom: 40px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: #e5e5e5;
+            transform: translateY(-2px);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .job-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
         .job-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .job-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .job-info {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .more-button {
+            background: #0088cc;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .close-button {
+            color: #ff4444;
+            background: none;
+            border: none;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .full-description {
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        .telegram-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #0088cc;
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.5); }
+            to { transform: scale(1); }
+        }
+
+        .jobs-list {
+            animation: fadeIn 0.5s ease;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState } = React;
-        const { motion, AnimatePresence } = Motion;
+    <div class="container" id="app"></div>
 
+    <script>
         // Данные о вакансиях
         const jobsData = [
             {
@@ -41,173 +150,99 @@
                 schedule: "Понедельник – Пятница",
                 forWomen: false,
                 forCIS: true,
-                fullDescription: `
-                    Вузковый (склад чипсов) – Работа в Польше 🇵🇱
-                    📢 Принимаем граждан Украины 🇺🇦, Молдовы 🇲🇩 и Беларуси 🇧🇾 
-                    Только Мужчины до 50 лет!
+                fullDescription: `Вузковый (склад чипсов) – Работа в Польше 🇵🇱
+📢 Принимаем граждан Украины 🇺🇦, Молдовы 🇲🇩 и Беларуси 🇧🇾 
+Только Мужчины до 50 лет!
 
-                    🏠 Жильё: мест на жильё нет – требуется своё жильё в Kutno
+🏠 Жильё: мест на жильё нет – требуется своё жильё в Kutno
 
-                    💰 Ставка и зарплата:
-                    💰 27,00 zl netto/час
-                    (Для студентов – 35,00 zl netto/час)
+💰 Ставка и зарплата:
+💰 27,00 zl netto/час
+(Для студентов – 35,00 zl netto/час)
 
-                    📊 Заработная плата в месяц:
-                    ✔️ Для стандартной ставки (27,00 zl/час):
-                    от 5 400 zl (200 часов) до 6 480 zl (240 часов)
+📊 Заработная плата в месяц:
+✔️ Для стандартной ставки (27,00 zl/час):
+от 5 400 zl (200 часов) до 6 480 zl (240 часов)
 
-                    ✔️ Для студентов (35,00 zl/час):
-                    от 7 000 zl (200 часов) до 8 400 zl (240 часов)
-                `
-            },
+✔️ Для студентов (35,00 zl/час):
+от 7 000 zl (200 часов) до 8 400 zl (240 часов)`
+            }
             // Здесь можно добавить больше вакансий
         ];
 
-        function App() {
-            const [view, setView] = useState('intro');
-            const [selectedCategory, setSelectedCategory] = useState(null);
-            const [selectedJob, setSelectedJob] = useState(null);
+        let currentView = 'intro';
+        let selectedCategory = null;
+        let selectedJob = null;
+        const app = document.getElementById('app');
 
-            const filterJobs = (category) => {
-                switch(category) {
-                    case 'all':
-                        return jobsData;
-                    case 'women':
-                        return jobsData.filter(job => job.forWomen);
-                    case 'cis':
-                        return jobsData.filter(job => job.forCIS);
-                    default:
-                        return [];
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-white">
-                    <AnimatePresence mode="wait">
-                        {view === 'intro' && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="flex flex-col items-center justify-center min-h-screen p-4"
-                            >
-                                <motion.h1
-                                    initial={{ scale: 0.5 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="text-4xl font-bold text-black mb-12"
-                                >
-                                    Work Poland
-                                </motion.h1>
-                                <div className="flex flex-col gap-4 w-full max-w-md">
-                                    {[
-                                        { title: 'Все актуальные вакансии', category: 'all' },
-                                        { title: 'Только для женщин', category: 'women' },
-                                        { title: 'Для граждан стран СНГ', category: 'cis' }
-                                    ].map((button) => (
-                                        <motion.button
-                                            key={button.category}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className="bg-gray-100 hover:bg-gray-200 text-black py-3 px-6 rounded-lg shadow-md"
-                                            onClick={() => {
-                                                setSelectedCategory(button.category);
-                                                setView('jobs');
-                                            }}
-                                        >
-                                            {button.title}
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {view === 'jobs' && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="p-4"
-                            >
-                                <div className="fixed top-4 right-4 z-10">
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        className="bg-gray-200 p-2 rounded-full"
-                                        onClick={() => {
-                                            setView('intro');
-                                            setSelectedJob(null);
-                                        }}
-                                    >
-                                        ←
-                                    </motion.button>
-                                </div>
-
-                                <div className="mt-12 space-y-4">
-                                    {filterJobs(selectedCategory).map((job) => (
-                                        <motion.div
-                                            key={job.id}
-                                            layoutId={`job-${job.id}`}
-                                            className="job-card bg-white rounded-lg shadow-md p-4"
-                                        >
-                                            <h2 className="text-xl font-bold">{job.title}</h2>
-                                            <p className="text-gray-600">{job.salary}</p>
-                                            <p className="text-gray-600">{job.totalSalary}</p>
-                                            <p className="text-gray-600">{job.hours}</p>
-                                            <p className="text-gray-600 mb-4">{job.schedule}</p>
-                                            
-                                            {selectedJob?.id === job.id ? (
-                                                <>
-                                                    <motion.div
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 1 }}
-                                                        className="mt-4"
-                                                    >
-                                                        <pre className="whitespace-pre-wrap text-sm">
-                                                            {job.fullDescription}
-                                                        </pre>
-                                                        <div className="mt-4">
-                                                            <a
-                                                                href="https://t.me/your_username"
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-blue-500 hover:underline"
-                                                            >
-                                                                Связаться с рекрутером
-                                                            </a>
-                                                        </div>
-                                                    </motion.div>
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        className="mt-4 text-red-500"
-                                                        onClick={() => setSelectedJob(null)}
-                                                    >
-                                                        Закрыть
-                                                    </motion.button>
-                                                </>
-                                            ) : (
-                                                <motion.button
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                                                    onClick={() => setSelectedJob(job)}
-                                                >
-                                                    Подробнее
-                                                </motion.button>
-                                            )}
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+        function renderIntro() {
+            app.innerHTML = `
+                <div class="intro">
+                    <h1>Work Poland</h1>
+                    <button class="button" onclick="showJobs('all')">Все актуальные вакансии</button>
+                    <button class="button" onclick="showJobs('women')">Только для женщин</button>
+                    <button class="button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
                 </div>
-            );
+            `;
         }
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        function filterJobs(category) {
+            switch(category) {
+                case 'all':
+                    return jobsData;
+                case 'women':
+                    return jobsData.filter(job => job.forWomen);
+                case 'cis':
+                    return jobsData.filter(job => job.forCIS);
+                default:
+                    return [];
+            }
+        }
+
+        function showJobs(category) {
+            currentView = 'jobs';
+            selectedCategory = category;
+            renderJobs();
+        }
+
+        function renderJobs() {
+            const filteredJobs = filterJobs(selectedCategory);
+            app.innerHTML = `
+                <button class="back-button" onclick="goBack()">←</button>
+                <div class="jobs-list">
+                    ${filteredJobs.map(job => `
+                        <div class="job-card" id="job-${job.id}">
+                            <div class="job-title">${job.title}</div>
+                            <div class="job-info">${job.salary}</div>
+                            <div class="job-info">${job.totalSalary}</div>
+                            <div class="job-info">${job.hours}</div>
+                            <div class="job-info">${job.schedule}</div>
+                            ${selectedJob === job.id ? `
+                                <div class="full-description">${job.fullDescription}</div>
+                                <a href="https://t.me/your_username" class="telegram-link" target="_blank">Связаться с рекрутером</a>
+                                <button class="close-button" onclick="toggleJobDetails(${job.id})">Закрыть</button>
+                            ` : `
+                                <button class="more-button" onclick="toggleJobDetails(${job.id})">Подробнее</button>
+                            `}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function toggleJobDetails(jobId) {
+            selectedJob = selectedJob === jobId ? null : jobId;
+            renderJobs();
+        }
+
+        function goBack() {
+            currentView = 'intro';
+            selectedJob = null;
+            renderIntro();
+        }
+
+        // Инициализация приложения
+        renderIntro();
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 </body>
 </html>
