@@ -130,6 +130,7 @@
             margin: 0 auto;
             overflow-y: auto;
             height: 100vh;
+            flex-direction: column-reverse;
         }
 
         .post {
@@ -206,6 +207,112 @@
             "d2d0714f014a9784047eaeccf956520045c45265f36b4c81f8a7a07782e0a5aa"
         ];
 
+        const posts = [
+            {
+                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
+                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+            },
+            {
+                date: '📅 Дата: 12.02.2025 | 🕓 Время: 16:47',
+                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+            },
+            {
+                date: '📅 Дата: 11.02.2025 | 🕓 Время: 16:47',
+                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+            },
+            {
+                date: '📅 Дата: 09.02.2025 | 🕓 Время: 16:47',
+                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+            },
+            {
+                date: '📅 Дата: 05.02.2025 | 🕓 Время: 16:47',
+                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+            }
+        ];
+
+        // Проверка хеша при входе
+        function checkHash() {
+            const inputHash = document.getElementById('hashInput').value;
+            const errorElement = document.getElementById('error');
+            
+            if (validHashes.includes(inputHash)) {
+                document.getElementById('auth').style.display = 'none';
+                const contentElement = document.getElementById('content');
+                contentElement.style.display = 'block';
+                loadPosts();
+                
+                // Запрашиваем разрешение на уведомления
+                requestNotificationPermission();
+            } else {
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Создание поста
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            
+            postElement.innerHTML = `
+                <div class="post-date">${post.date}</div>
+                <div class="post-content">${post.text}</div>
+            `;
+            
+            return postElement;
+        }
+
+        // Загрузка постов
+        function loadPosts() {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+            
+            // Сортируем посты по дате (новые внизу)
+            const sortedPosts = [...posts].sort((a, b) => {
+                const dateA = new Date(a.date.split('|')[0].replace('📅 Дата:', '').trim().split('.').reverse().join('-'));
+                const dateB = new Date(b.date.split('|')[0].replace('📅 Дата:', '').trim().split('.').reverse().join('-'));
+                return dateA - dateB;
+            });
+            
+            sortedPosts.forEach((post, index) => {
+                const postElement = createPostElement(post);
+                postElement.style.animationDelay = `${index * 0.2}s`;
+                content.appendChild(postElement);
+            });
+
+            // Прокручиваем к последнему посту
+            setTimeout(() => {
+                content.scrollTop = content.scrollHeight;
+            }, sortedPosts.length * 200 + 100);
+        }
+
+        // Запрос разрешения на уведомления
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                await Notification.requestPermission();
+            }
+        }
+
+        // Отправка уведомления
+        function sendNotification(post) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Новый пост в Cthreads', {
+                    body: post.text.split('\n')[0]
+                });
+            }
+        }
+
+        // Добавление нового поста
+        function addPost(post) {
+            posts.push(post);
+            const contentElement = document.getElementById('content');
+            const postElement = createPostElement(post);
+            postElement.style.animationDelay = '0s';
+            contentElement.insertAdjacentElement('beforeend', postElement);
+            contentElement.scrollTop = contentElement.scrollHeight;
+            sendNotification(post);
+        }
+
+        // Анимация логотипа
         function createEthLogos() {
             for (let i = 0; i < 15; i++) {
                 const logo = document.createElement('div');
@@ -278,85 +385,51 @@
                     char.textContent = finalChars[i];
                 });
             }, 1800);
-        }
 
-        function showAuth() {
-            document.getElementById('splash').style.opacity = '0';
-            document.getElementById('splash').style.transition = 'opacity 0.4s ease';
-            
             setTimeout(() => {
-                document.getElementById('splash').style.display = 'none';
-                document.getElementById('auth').style.display = 'flex';
-                document.querySelector('.auth-container').style.display = 'block';
-                
+                logoElement.innerHTML = ''; // Очищаем старые символы
+                finalText.split('').forEach((char) => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.className = 'logo-char';
+                    span.style.opacity = '0';
+                    span.style.transition = 'opacity 0.6s ease-in-out';
+                    logoElement.appendChild(span);
+                });
+
                 setTimeout(() => {
-                    document.querySelector('.auth-container').style.opacity = '1';
-                    document.querySelector('.auth-container').style.transform = 'translateY(0)';
+                    Array.from(logoElement.children).forEach((char) => {
+                        char.style.opacity = '1';
+                    });
                 }, 100);
-            }, 400);
+            }, 2500);
         }
 
-        function checkHash() {
-            const inputHash = document.getElementById('hashInput').value;
-            if (validHashes.includes(inputHash)) {
-                document.getElementById('auth').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-                loadPosts();
-            } else {
-                document.getElementById('error').style.display = 'block';
-            }
-        }
+function showAuth() {
+    document.getElementById('splash').style.opacity = '0';
+    document.getElementById('splash').style.transition = 'opacity 0.4s ease';
+    
+    setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('auth').style.display = 'flex';
+        document.querySelector('.auth-container').style.display = 'block';
+        
+        setTimeout(() => {
+            document.querySelector('.auth-container').style.opacity = '1';
+            document.querySelector('.auth-container').style.transform = 'translateY(0)';
+        }, 100);
+    }, 400);
+}
 
-        // Simple posts structure - just date and text
-        const posts = [
-            {
-                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            }
-        ];
+// Инициализация приложения
+function init() {
+    createEthLogos();
+    initLogoAnimation();
+    setTimeout(showAuth, 3000);
+}
 
-        function createPostElement(post) {
-            const postElement = document.createElement('div');
-            postElement.className = 'post';
-            
-            postElement.innerHTML = `
-                <div class="post-date">${post.date}</div>
-                <div class="post-content">${post.text}</div>
-            `;
-            
-            return postElement;
-        }
-
-        function loadPosts() {
-            const content = document.getElementById('content');
-            content.innerHTML = '';
-            
-            posts.forEach((post, index) => {
-                const postElement = createPostElement(post);
-                postElement.style.animationDelay = `${index * 0.2}s`;
-                content.appendChild(postElement);
-            });
-        }
-
-        createEthLogos();
-        initLogoAnimation();
-        setTimeout(showAuth, 3000);
-    </script>
+// Запускаем приложение
+init();
+</script>
 </body>
 </html>
