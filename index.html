@@ -16,9 +16,9 @@
             background: #000;
             color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow: hidden;
         }
 
-        /* Splash screen */
         #splash {
             position: fixed;
             top: 0;
@@ -28,153 +28,319 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
             background: #000;
-        }
-
-        .rocket {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-            pointer-events: none;
+            z-index: 1000;
         }
 
         #logo {
-            font-size: 2.5em;
+            font-size: 3.5em;
             font-weight: bold;
-            opacity: 0;
-            transform: scale(0.5);
-            animation: logoAppear 1s ease forwards;
+            display: flex;
+            position: relative;
+            perspective: 1000px;
             color: #fff;
         }
 
-        @keyframes logoAppear {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .logo-char {
+            opacity: 0;
+            transform-style: preserve-3d;
+            position: relative;
+            display: inline-block;
         }
 
-        /* Main content */
+        .eth-logo {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg') no-repeat center;
+            background-size: contain;
+            opacity: 0.8;
+        }
+
+        .auth-container {
+            display: none;
+            background: #181A20;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #2B2F36;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            width: 400px;
+        }
+
+        #auth {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #auth h2 {
+            margin-bottom: 25px;
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #2B2F36;
+            border-radius: 4px;
+            background: #0B0E11;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #F7A600;
+        }
+
+        button {
+            width: 100%;
+            background: #F7A600;
+            color: #000;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: #FFB800;
+        }
+
         #content {
             display: none;
-            padding: 16px;
+            padding: 20px;
             max-width: 800px;
             margin: 0 auto;
+            overflow-y: auto;
+            height: 100vh;
         }
 
         .post {
-            background: #1c1c1c;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .post img {
-            max-width: 100%;
+            background: #181A20;
             border-radius: 8px;
-            margin-top: 12px;
-            display: block;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #2B2F36;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.3s forwards;
         }
 
         .post-date {
-            color: #888;
-            font-size: 0.9em;
-            margin-bottom: 8px;
+            color: #848E9C;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
         }
 
-        .post-text {
-            line-height: 1.5;
-            margin-bottom: 12px;
+        .post-date::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #F7A600;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .post-content {
+            color: #fff;
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Splash screen -->
     <div id="splash">
-        <div id="logo">#Cthreads</div>
+        <div id="logo"></div>
     </div>
 
-    <!-- Main content -->
-    <div id="content">
-        <!-- ДЛЯ ДОБАВЛЕНИЯ НОВОГО ПОСТА СКОПИРУЙТЕ БЛОК div class="post" И ВСТАВЬТЕ ЕГО СЮДА -->
-        
-        <div class="post">
-            <div class="post-date">13 февраля 2024</div>
-            <div class="post-text">
-                Последние новости криптовалютного рынка: BTC достиг новых высот! 🚀
-                
-                Сегодня мы наблюдаем невероятный рост основной криптовалюты. Давайте разберем основные причины...
-            </div>
-            <!-- Замените ссылку на свою. Можно использовать прямые ссылки из Telegram (t.me) -->
-            <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Ftkdeal.com%2Ffunds%2Fgde-otkryt-kripto-fond&psig=AOvVaw0mwFhFJZ5v0VrkcW92spUb&ust=1739533387897000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKjxw__IwIsDFQAAAAAdAAAAABAE" alt="Bitcoin chart">
+    <div id="auth">
+        <div class="auth-container">
+            <h2>Авторизация</h2>
+            <input type="password" id="hashInput" placeholder="Введите хеш">
+            <button onclick="checkHash()">Войти</button>
+            <p id="error" style="color: #D32F2F; font-size: 14px; display: none; margin-top: 12px; text-align: center;">Неверный хеш</p>
         </div>
-
-        <div class="post">
-            <div class="post-date">12 февраля 2024</div>
-            <div class="post-text">
-                Анализ текущей ситуации на рынке альткоинов. Что ждать дальше? 📊
-                
-                Основные тренды, которые мы видим сейчас...
-            </div>
-            <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.rbc.ru%2Fcrypto%2Fnews%2F5f85cb609a79479ccac18f27&psig=AOvVaw0mwFhFJZ5v0VrkcW92spUb&ust=1739533387897000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKjxw__IwIsDFQAAAAAdAAAAABAJ" alt="Altcoins analysis">
-        </div>
-        
     </div>
+
+    <div id="content"></div>
 
     <script>
-        // Создаем летающие ракеты
-        function createRockets() {
-            for (let i = 0; i < 20; i++) {
-                const rocket = document.createElement('div');
-                rocket.className = 'rocket';
-                rocket.style.left = Math.random() * window.innerWidth + 'px';
-                rocket.style.top = Math.random() * window.innerHeight + 'px';
-                document.getElementById('splash').appendChild(rocket);
+        const validHashes = [
+            "3f786850e387550fdab836ed7e6dc881de23001b96b46900752a3d52f5e0bc61",
+            "9b74c9897bac770ffc029102a200c5de33f6f6a92a30bcd2f93a052ea6c7ec5b",
+            "2c26b46b68ffc68ff99b453c1d30413413422c4a6f75a8432eac91b6c66a896c",
+            "6dcd4ce23d88e2ee956f77d496ac29e5da4bca62ba5c49c5386f41c0aacef055",
+            "5feceb66ffc86f38d952786c6d696c79c2ff1d5c3b308cf6482e21f8c56e2376",
+            "b94d27b9934d3e08a52e52d7da7dabfadee3e67e21954af57be763ab3dc6078f",
+            "0e5751c026e543b2e8ab2eb06099cf20a3e07a6f4eeca5fae7fe853167aafb5e",
+            "8d969eef6ecad3c29a3a629280e686cff8fab3e30162ee99c96fbc0c1f5a471e",
+            "ef797c8118f02dfb6492c8c2cd0ba1b211d6a9e6506b2454b6fa8b2a83942d7e",
+            "d2d0714f014a9784047eaeccf956520045c45265f36b4c81f8a7a07782e0a5aa"
+        ];
+
+        function createEthLogos() {
+            for (let i = 0; i < 15; i++) {
+                const logo = document.createElement('div');
+                logo.className = 'eth-logo';
+                logo.style.left = Math.random() * window.innerWidth + 'px';
+                logo.style.top = Math.random() * window.innerHeight + 'px';
+                document.getElementById('splash').appendChild(logo);
+                animateLogo(logo);
+            }
+        }
+
+        function animateLogo(logo) {
+            let x = parseFloat(logo.style.left);
+            let y = parseFloat(logo.style.top);
+            let dx = (Math.random() - 0.5) * 8;
+            let dy = (Math.random() - 0.5) * 8;
+
+            function update() {
+                if (!logo.parentElement) return;
+
+                x += dx;
+                y += dy;
+
+                if (x <= 0 || x >= window.innerWidth - 30) dx *= -1;
+                if (y <= 0 || y >= window.innerHeight - 30) dy *= -1;
+
+                logo.style.left = x + 'px';
+                logo.style.top = y + 'px';
                 
-                animateRocket(rocket);
+                requestAnimationFrame(update);
+            }
+
+            update();
+        }
+
+        function initLogoAnimation() {
+            const logoText = "#ThreaCds";
+            const finalText = "#Cthreads";
+            const logoElement = document.getElementById('logo');
+
+            logoText.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.className = 'logo-char';
+                span.style.position = 'absolute';
+                span.style.left = Math.random() * 200 - 100 + 'px';
+                span.style.top = Math.random() * 200 - 100 + 'px';
+                span.style.opacity = '0';
+                span.style.transform = `rotate(${Math.random() * 360}deg)`;
+                logoElement.appendChild(span);
+            });
+
+            setTimeout(() => {
+                const chars = logoElement.children;
+                Array.from(chars).forEach((char) => {
+                    char.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    char.style.position = 'relative';
+                    char.style.left = '0';
+                    char.style.top = '0';
+                    char.style.opacity = '1';
+                    char.style.transform = 'rotate(0deg)';
+                });
+            }, 100);
+
+            setTimeout(() => {
+                const chars = logoElement.children;
+                const finalChars = finalText.split('');
+                Array.from(chars).forEach((char, i) => {
+                    char.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    char.textContent = finalChars[i];
+                });
+            }, 1800);
+        }
+
+        function showAuth() {
+            document.getElementById('splash').style.opacity = '0';
+            document.getElementById('splash').style.transition = 'opacity 0.4s ease';
+            
+            setTimeout(() => {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('auth').style.display = 'flex';
+                document.querySelector('.auth-container').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.querySelector('.auth-container').style.opacity = '1';
+                    document.querySelector('.auth-container').style.transform = 'translateY(0)';
+                }, 100);
+            }, 400);
+        }
+
+        function checkHash() {
+            const inputHash = document.getElementById('hashInput').value;
+            if (validHashes.includes(inputHash)) {
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                loadPosts();
+            } else {
+                document.getElementById('error').style.display = 'block';
             }
         }
 
-        function animateRocket(rocket) {
-            const duration = 2000 + Math.random() * 2000;
-            const startX = parseFloat(rocket.style.left);
-            const startY = parseFloat(rocket.style.top);
-            const endX = Math.random() * window.innerWidth;
-            const endY = Math.random() * window.innerHeight;
-            
-            let startTime = null;
-            
-            function update(currentTime) {
-                if (!startTime) startTime = currentTime;
-                const elapsed = currentTime - startTime;
-                const progress = elapsed / duration;
-
-                if (progress < 1) {
-                    rocket.style.left = startX + (endX - startX) * progress + 'px';
-                    rocket.style.top = startY + (endY - startY) * progress + 'px';
-                    requestAnimationFrame(update);
-                } else {
-                    rocket.style.left = Math.random() * window.innerWidth + 'px';
-                    rocket.style.top = Math.random() * window.innerHeight + 'px';
-                    animateRocket(rocket);
-                }
+        // Simple posts structure - just date and text
+        const posts = [
+            {
+                date: '13.02.2025 16:47',
+                text: 'Позиция LONG BTC/USDT\nКурс: 67.000$\nПлечо: 20x'
             }
+        ];
+
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
             
-            requestAnimationFrame(update);
+            postElement.innerHTML = `
+                <div class="post-date">${post.date}</div>
+                <div class="post-content">${post.text}</div>
+            `;
+            
+            return postElement;
         }
 
-        // Инициализация
-        createRockets();
+        function loadPosts() {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+            
+            posts.forEach((post, index) => {
+                const postElement = createPostElement(post);
+                postElement.style.animationDelay = `${index * 0.2}s`;
+                content.appendChild(postElement);
+            });
+        }
 
-        // Показываем контент после анимации
-        setTimeout(() => {
-            document.getElementById('splash').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-        }, 3000);
+        createEthLogos();
+        initLogoAnimation();
+        setTimeout(showAuth, 3000);
     </script>
 </body>
 </html>
