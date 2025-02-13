@@ -1,320 +1,179 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="format-detection" content="telephone=no" />
-  <title>Work Poland</title>
-  <!-- Подключаем интересный шрифт Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cthreads</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      padding: 16px;
-      font-family: 'Poppins', -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      position: relative;
-    }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
 
-    /* Приветственное сообщение теперь позиционируется с отступами 2 см сверху и снизу */
-    .welcome-message {
-      position: fixed;
-      top: 2cm;
-      bottom: 2cm;
-      left: 0;
-      right: 0;
-      margin: auto;
-      font-size: 28px;
-      font-weight: 600;
-      text-align: center;
-      opacity: 0;
-      /* Убираем translate для вертикального центрирования – масштабирование остаётся */
-      transform: scale(0.5);
-      animation: welcomeAnimation 3s forwards;
-      white-space: nowrap;
-      z-index: 1000;
-    }
+        /* Splash screen */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-    @keyframes welcomeAnimation {
-      0% {
-        opacity: 0;
-        transform: scale(0.5);
-      }
-      40% {
-        opacity: 1;
-        transform: scale(1.1);
-      }
-      80% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(1);
-      }
-    }
+        .rocket {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+        }
 
-    /* Блок с интро – кнопки меню */
-    .intro {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: slideUp 0.5s 3s forwards;
-      padding: 40px 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+        #logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0.5);
+            animation: logoAppear 1s ease forwards;
+        }
 
-    @keyframes slideUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        @keyframes logoAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
 
-    .menu-button {
-      display: block;
-      width: calc(100% - 32px);
-      padding: 20px 16px;
-      margin: 16px auto;
-      border: none;
-      border-radius: 16px;
-      background: #f8f9fa;
-      font-size: 18px;
-      font-weight: 500;
-      text-align: center;
-      color: #2c3e50;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
+        /* Main content */
+        #content {
+            display: none;
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    .menu-button:active {
-      transform: scale(0.98);
-      background: #f1f3f5;
-    }
+        .post {
+            background: #1c1c1c;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
 
-    .menu-button:nth-child(1) { animation-delay: 3.2s; }
-    .menu-button:nth-child(2) { animation-delay: 3.3s; }
-    .menu-button:nth-child(3) { animation-delay: 3.4s; }
+        .post img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
 
-    .back-btn {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      background: #f8f9fa;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #2c3e50;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-    }
+        .post-date {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
 
-    /* Центрируем блок вакансий по вертикали – отступы сверху и снизу равны */
-    .job-list {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: calc(100vh - 32px); /* учитываем высоту кнопки Назад */
-      animation: fadeIn 0.5s forwards;
-      padding: 40px 0;
-    }
-
-    .job-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      margin: 16px auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      animation: slideIn 0.3s forwards;
-      opacity: 0;
-      transform: translateY(20px);
-      max-width: 600px;
-    }
-
-    .job-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: #1a1a1a;
-    }
-
-    .job-info {
-      color: #4a5568;
-      margin-bottom: 8px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .more-btn, .close-btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
-      margin-top: 16px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .more-btn {
-      background: #0088cc;
-      color: white;
-    }
-
-    .close-btn {
-      background: #ff4444;
-      color: white;
-    }
-
-    .description {
-      margin-top: 16px;
-      white-space: pre-wrap;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #2c3e50;
-    }
-
-    .contact-link {
-      display: inline-block;
-      margin-top: 16px;
-      color: #0088cc;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
+        .post-text {
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body>
-  <div id="app"></div>
+    <!-- Splash screen -->
+    <div id="splash">
+        <div id="logo">#Cthreads</div>
+    </div>
 
-  <script>
-    const jobs = [
-      {
-        id: 1,
-        title: "Вузковый (склад чипсов)",
-        salary: "27,00 zl netto/час",
-        totalSalary: "от 5 400 zl (200 часов) до 6 480 zl (240 часов)",
-        hours: "200-240 часов в месяц",
-        schedule: "Понедельник – Пятница",
-        forWomen: false,
-        forCIS: true,
-        description: `Вузковый (склад чипсов) – Работа в Польше 🇵🇱
-📢 Принимаем граждан Украины 🇺🇦, Молдовы 🇲🇩 и Беларуси 🇧🇾 
-Только Мужчины до 50 лет!
+    <!-- Main content -->
+    <div id="content">
+        <!-- Posts will be inserted here -->
+    </div>
 
-🏠 Жильё: мест на жильё нет – требуется своё жильё в Kutno
+    <script>
+        // Создаем летающие ракеты
+        function createRockets() {
+            for (let i = 0; i < 20; i++) {
+                const rocket = document.createElement('div');
+                rocket.className = 'rocket';
+                rocket.style.left = Math.random() * window.innerWidth + 'px';
+                rocket.style.top = Math.random() * window.innerHeight + 'px';
+                document.getElementById('splash').appendChild(rocket);
+                
+                animateRocket(rocket);
+            }
+        }
 
-💰 Ставка и зарплата:
-💰 27,00 zl netto/час
-(Для студентов – 35,00 zl netto/час)
+        function animateRocket(rocket) {
+            const duration = 2000 + Math.random() * 2000;
+            const startX = parseFloat(rocket.style.left);
+            const startY = parseFloat(rocket.style.top);
+            const endX = Math.random() * window.innerWidth;
+            const endY = Math.random() * window.innerHeight;
+            
+            let startTime = null;
+            
+            function update(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsed = currentTime - startTime;
+                const progress = elapsed / duration;
 
-📊 Заработная плата в месяц:
-✔️ Для стандартной ставки (27,00 zl/час):
-от 5 400 zl (200 часов) до 6 480 zl (240 часов)
+                if (progress < 1) {
+                    rocket.style.left = startX + (endX - startX) * progress + 'px';
+                    rocket.style.top = startY + (endY - startY) * progress + 'px';
+                    requestAnimationFrame(update);
+                } else {
+                    rocket.style.left = Math.random() * window.innerWidth + 'px';
+                    rocket.style.top = Math.random() * window.innerHeight + 'px';
+                    animateRocket(rocket);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
 
-✔️ Для студентов (35,00 zl/час):
-от 7 000 zl (200 часов) до 8 400 zl (240 часов)`
-      }
-    ];
+        // Загрузка постов
+        async function loadPosts() {
+            try {
+                const response = await fetch('posts.json');
+                const posts = await response.json();
+                const content = document.getElementById('content');
+                
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    
+                    postElement.innerHTML = `
+                        <div class="post-date">${post.date}</div>
+                        <div class="post-text">${post.text}</div>
+                        ${post.image ? `<img src="${post.image}" alt="Post image">` : ''}
+                    `;
+                    
+                    content.appendChild(postElement);
+                });
+            } catch (error) {
+                console.error('Error loading posts:', error);
+            }
+        }
 
-    const app = document.getElementById('app');
-    let currentView = 'menu';
-    let currentCategory = null;
-    let expandedJob = null;
-    // Флаг, чтобы анимация приветствия показывалась только при первой загрузке
-    let initialLoad = true;
+        // Инициализация
+        createRockets();
 
-    function showMenu() {
-      // Если это первая загрузка – показываем приветственное сообщение с анимацией
-      let welcomeHTML = '';
-      if (initialLoad) {
-        welcomeHTML = `<div class="welcome-message">Работа в Польше 🇵🇱</div>`;
-        initialLoad = false;
-      }
-      app.innerHTML = `
-        ${welcomeHTML}
-        <div class="intro">
-          <button class="menu-button" onclick="showJobs('all')">Все актуальные вакансии</button>
-          <button class="menu-button" onclick="showJobs('women')">Только для женщин</button>
-          <button class="menu-button" onclick="showJobs('cis')">Для граждан стран СНГ</button>
-        </div>
-      `;
-    }
-
-    function showJobs(category) {
-      currentView = 'jobs';
-      currentCategory = category;
-      const filteredJobs = filterJobs(category);
-
-      app.innerHTML = `
-        <button class="back-btn" onclick="showMenu()">Назад</button>
-        <div class="job-list">
-          ${filteredJobs.map((job, index) => `
-            <div class="job-card" style="animation-delay: ${index * 0.1}s">
-              <div class="job-title">${job.title}</div>
-              <div class="job-info">${job.salary}</div>
-              <div class="job-info">${job.totalSalary}</div>
-              <div class="job-info">${job.hours}</div>
-              <div class="job-info">${job.schedule}</div>
-              ${expandedJob === job.id ? `
-                <div class="description">${job.description}</div>
-                <a href="https://t.me/your_username" class="contact-link">Связаться с рекрутером</a>
-                <button class="close-btn" onclick="toggleJob(${job.id})">Закрыть</button>
-              ` : `
-                <button class="more-btn" onclick="toggleJob(${job.id})">Подробнее</button>
-              `}
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    function filterJobs(category) {
-      switch (category) {
-        case 'all':
-          return jobs;
-        case 'women':
-          return jobs.filter(job => job.forWomen);
-        case 'cis':
-          return jobs.filter(job => job.forCIS);
-        default:
-          return [];
-      }
-    }
-
-    function toggleJob(id) {
-      expandedJob = expandedJob === id ? null : id;
-      showJobs(currentCategory);
-    }
-
-    // Запускаем приложение
-    showMenu();
-  </script>
+        // Показываем контент после анимации
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            loadPosts();
+        }, 3000);
+    </script>
 </body>
 </html>
