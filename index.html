@@ -129,7 +129,7 @@
             max-width: 800px;
             margin: 0 auto;
             overflow-y: auto;
-            height: 100vh;
+            height: calc(100vh - 60px);
             flex-direction: column-reverse;
         }
 
@@ -169,6 +169,25 @@
             white-space: pre-line;
         }
 
+        #admin-panel {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #181A20;
+            padding: 10px;
+            border-top: 1px solid #2B2F36;
+        }
+
+        .admin-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
         @keyframes fadeInUp {
             to {
                 opacity: 1;
@@ -193,8 +212,27 @@
 
     <div id="content"></div>
 
+    <div id="admin-panel">
+        <div class="admin-form">
+            <input type="date" id="adminDate" required>
+            <input type="time" id="adminTime" required>
+            <input type="text" id="adminInstrument" placeholder="Торговый инструмент" required>
+            <select id="adminPosition" required>
+                <option value="LONG">LONG</option>
+                <option value="SHORT">SHORT</option>
+            </select>
+            <input type="number" id="adminEntry" placeholder="Курс входа" required>
+            <input type="number" id="adminLeverage" placeholder="Плечо" required>
+            <input type="number" id="adminStopLoss" placeholder="Stop-Loss" required>
+            <input type="number" id="adminTakeProfit" placeholder="Take-Profit" required>
+            <button onclick="createNewPost()" style="grid-column: span 2;">Добавить пост</button>
+        </div>
+    </div>
+
     <script>
+        const ADMIN_HASH = "admin254525";
         const validHashes = [
+            ADMIN_HASH,
             "3f786850e387550fdab836ed7e6dc881de23001b96b46900752a3d52f5e0bc61",
             "9b74c9897bac770ffc029102a200c5de33f6f6a92a30bcd2f93a052ea6c7ec5b",
             "2c26b46b68ffc68ff99b453c1d30413413422c4a6f75a8432eac91b6c66a896c",
@@ -207,30 +245,64 @@
             "d2d0714f014a9784047eaeccf956520045c45265f36b4c81f8a7a07782e0a5aa"
         ];
 
-        const posts = [
+        // Загрузка постов из localStorage или использование дефолтных
+        const defaultPosts = [
             {
                 date: '📅 Дата: 13.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+                text: '💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
             },
             {
                 date: '📅 Дата: 12.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 11.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 09.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
-            },
-            {
-                date: '📅 Дата: 05.02.2025 | 🕓 Время: 16:47',
-                text: '🚀 Открыта позиция: LONG\n💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
+                text: '💹 Торговый инструмент: BTC/USDT\n🚀 Открыта позиция: LONG\n💰 Курс входа: 67,000$\n⚙️ Плечо: 20x\n🛑 Stop-Loss: 65,000$ 🔻\n🎯 Take-Profit: 75,000$ 🚀'
             }
         ];
 
-        // Проверка хеша при входе
+        let posts = JSON.parse(localStorage.getItem('posts')) || defaultPosts;
+
+        function createNewPost() {
+            const date = document.getElementById('adminDate').value;
+            const time = document.getElementById('adminTime').value;
+            const instrument = document.getElementById('adminInstrument').value;
+            const position = document.getElementById('adminPosition').value;
+            const entry = document.getElementById('adminEntry').value;
+            const leverage = document.getElementById('adminLeverage').value;
+            const stopLoss = document.getElementById('adminStopLoss').value;
+            const takeProfit = document.getElementById('adminTakeProfit').value;
+
+            if (!date || !time || !instrument || !position || !entry || !leverage || !stopLoss || !takeProfit) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            const formattedDate = new Date(date).toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            const newPost = {
+                date: `📅 Дата: ${formattedDate} | 🕓 Время: ${time}`,
+                text: `💹 Торговый инструмент: ${instrument}\n🚀 Открыта позиция: ${position}\n💰 Курс входа: ${entry}$\n⚙️ Плечо: ${leverage}x\n🛑 Stop-Loss: ${stopLoss}$ 🔻\n🎯 Take-Profit: ${takeProfit}$ 🚀`
+            };
+
+            posts.push(newPost);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            const contentElement = document.getElementById('content');
+            const postElement = createPostElement(newPost);
+            postElement.style.animationDelay = '0s';
+            contentElement.insertAdjacentElement('beforeend', postElement);
+            contentElement.scrollTop = contentElement.scrollHeight;
+            
+            // Очистка формы
+            document.querySelectorAll('#admin-panel input, #admin-panel select').forEach(input => {
+                input.value = '';
+            });
+
+            // Отправка уведомления
+            sendNotification(newPost);
+        }
+
         function checkHash() {
             const inputHash = document.getElementById('hashInput').value;
             const errorElement = document.getElementById('error');
@@ -239,16 +311,20 @@
                 document.getElementById('auth').style.display = 'none';
                 const contentElement = document.getElementById('content');
                 contentElement.style.display = 'block';
-                loadPosts();
                 
-                // Запрашиваем разрешение на уведомления
+                // Показываем админ-панель если это админский хеш
+                if (inputHash === ADMIN_HASH) {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('content').style.height = 'calc(100vh - 130px)';
+                }
+                
+                loadPosts();
                 requestNotificationPermission();
             } else {
                 errorElement.style.display = 'block';
             }
         }
 
-        // Создание поста
         function createPostElement(post) {
             const postElement = document.createElement('div');
             postElement.className = 'post';
@@ -261,12 +337,10 @@
             return postElement;
         }
 
-        // Загрузка постов
         function loadPosts() {
             const content = document.getElementById('content');
             content.innerHTML = '';
             
-            // Сортируем посты по дате (новые внизу)
             const sortedPosts = [...posts].sort((a, b) => {
                 const dateA = new Date(a.date.split('|')[0].replace('📅 Дата:', '').trim().split('.').reverse().join('-'));
                 const dateB = new Date(b.date.split('|')[0].replace('📅 Дата:', '').trim().split('.').reverse().join('-'));
@@ -279,37 +353,23 @@
                 content.appendChild(postElement);
             });
 
-            // Прокручиваем к последнему посту
             setTimeout(() => {
                 content.scrollTop = content.scrollHeight;
             }, sortedPosts.length * 200 + 100);
         }
 
-        // Запрос разрешения на уведомления
         async function requestNotificationPermission() {
             if ('Notification' in window) {
                 await Notification.requestPermission();
             }
         }
 
-        // Отправка уведомления
         function sendNotification(post) {
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('Новый пост в Cthreads', {
                     body: post.text.split('\n')[0]
                 });
             }
-        }
-
-        // Добавление нового поста
-        function addPost(post) {
-            posts.push(post);
-            const contentElement = document.getElementById('content');
-            const postElement = createPostElement(post);
-            postElement.style.animationDelay = '0s';
-            contentElement.insertAdjacentElement('beforeend', postElement);
-            contentElement.scrollTop = contentElement.scrollHeight;
-            sendNotification(post);
         }
 
         // Анимация логотипа
@@ -324,86 +384,86 @@
             }
         }
 
-        function animateLogo(logo) {
-            let x = parseFloat(logo.style.left);
-            let y = parseFloat(logo.style.top);
-            let dx = (Math.random() - 0.5) * 8;
-            let dy = (Math.random() - 0.5) * 8;
+function animateLogo(logo) {
+    let x = parseFloat(logo.style.left);
+    let y = parseFloat(logo.style.top);
+    let dx = (Math.random() - 0.5) * 8;
+    let dy = (Math.random() - 0.5) * 8;
 
-            function update() {
-                if (!logo.parentElement) return;
+    function update() {
+        if (!logo.parentElement) return;
 
-                x += dx;
-                y += dy;
+        x += dx;
+        y += dy;
 
-                if (x <= 0 || x >= window.innerWidth - 30) dx *= -1;
-                if (y <= 0 || y >= window.innerHeight - 30) dy *= -1;
+        if (x <= 0 || x >= window.innerWidth - 30) dx *= -1;
+        if (y <= 0 || y >= window.innerHeight - 30) dy *= -1;
 
-                logo.style.left = x + 'px';
-                logo.style.top = y + 'px';
-                
-                requestAnimationFrame(update);
-            }
+        logo.style.left = x + 'px';
+        logo.style.top = y + 'px';
+        
+        requestAnimationFrame(update);
+    }
 
-            update();
-        }
+    update();
+}
 
-        function initLogoAnimation() {
-            const logoText = "#ThreaCds";
-            const finalText = "#Cthreads";
-            const logoElement = document.getElementById('logo');
+function initLogoAnimation() {
+    const logoText = "#ThreaCds";
+    const finalText = "#Cthreads";
+    const logoElement = document.getElementById('logo');
 
-            logoText.split('').forEach((char, i) => {
-                const span = document.createElement('span');
-                span.textContent = char;
-                span.className = 'logo-char';
-                span.style.position = 'absolute';
-                span.style.left = Math.random() * 200 - 100 + 'px';
-                span.style.top = Math.random() * 200 - 100 + 'px';
-                span.style.opacity = '0';
-                span.style.transform = `rotate(${Math.random() * 360}deg)`;
-                logoElement.appendChild(span);
+    logoText.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        span.className = 'logo-char';
+        span.style.position = 'absolute';
+        span.style.left = Math.random() * 200 - 100 + 'px';
+        span.style.top = Math.random() * 200 - 100 + 'px';
+        span.style.opacity = '0';
+        span.style.transform = `rotate(${Math.random() * 360}deg)`;
+        logoElement.appendChild(span);
+    });
+
+    setTimeout(() => {
+        const chars = logoElement.children;
+        Array.from(chars).forEach((char) => {
+            char.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            char.style.position = 'relative';
+            char.style.left = '0';
+            char.style.top = '0';
+            char.style.opacity = '1';
+            char.style.transform = 'rotate(0deg)';
+        });
+    }, 100);
+
+    setTimeout(() => {
+        const chars = logoElement.children;
+        const finalChars = finalText.split('');
+        Array.from(chars).forEach((char, i) => {
+            char.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            char.textContent = finalChars[i];
+        });
+    }, 1800);
+
+    setTimeout(() => {
+        logoElement.innerHTML = ''; // Очищаем старые символы
+        finalText.split('').forEach((char) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.className = 'logo-char';
+            span.style.opacity = '0';
+            span.style.transition = 'opacity 0.6s ease-in-out';
+            logoElement.appendChild(span);
+        });
+
+        setTimeout(() => {
+            Array.from(logoElement.children).forEach((char) => {
+                char.style.opacity = '1';
             });
-
-            setTimeout(() => {
-                const chars = logoElement.children;
-                Array.from(chars).forEach((char) => {
-                    char.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                    char.style.position = 'relative';
-                    char.style.left = '0';
-                    char.style.top = '0';
-                    char.style.opacity = '1';
-                    char.style.transform = 'rotate(0deg)';
-                });
-            }, 100);
-
-            setTimeout(() => {
-                const chars = logoElement.children;
-                const finalChars = finalText.split('');
-                Array.from(chars).forEach((char, i) => {
-                    char.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                    char.textContent = finalChars[i];
-                });
-            }, 1800);
-
-            setTimeout(() => {
-                logoElement.innerHTML = ''; // Очищаем старые символы
-                finalText.split('').forEach((char) => {
-                    const span = document.createElement('span');
-                    span.textContent = char;
-                    span.className = 'logo-char';
-                    span.style.opacity = '0';
-                    span.style.transition = 'opacity 0.6s ease-in-out';
-                    logoElement.appendChild(span);
-                });
-
-                setTimeout(() => {
-                    Array.from(logoElement.children).forEach((char) => {
-                        char.style.opacity = '1';
-                    });
-                }, 100);
-            }, 2500);
-        }
+        }, 100);
+    }, 2500);
+}
 
 function showAuth() {
     document.getElementById('splash').style.opacity = '0';
