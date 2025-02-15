@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Telegraph ℠</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -15,6 +15,7 @@
             height: 100%;
             background: #000;
             font-family: 'Montserrat', sans-serif;
+            touch-action: manipulation;
         }
 
         #intro {
@@ -67,14 +68,6 @@
             }
         }
 
-        .eth-logo {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            z-index: 99;
-            will-change: transform;
-        }
-
         #content {
             display: none;
             padding: 20px;
@@ -101,6 +94,28 @@
             transform: translateY(50px);
             opacity: 0;
             animation: postAppear 0.8s ease-out forwards;
+            transition: all 0.3s ease-out;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .post.expanded {
+            transform: scale(1.02);
+        }
+
+        .post-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .post.expanded .post-content {
+            max-height: 1000px;
+        }
+
+        .post-preview {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
         }
 
         @keyframes postAppear {
@@ -143,12 +158,18 @@
     <div id="content">
         <div class="post">
             <h2>Ethereum 2.0: Будущее криптовалют</h2>
-            <p>В мире криптовалют происходят революционные изменения. Ethereum 2.0 представляет собой значительное обновление сети, которое обещает решить проблемы масштабируемости и энергоэффективности. Это обновление знаменует новую эру в развитии децентрализованных приложений...</p>
+            <div class="post-preview">В мире криптовалют происходят революционные изменения...</div>
+            <div class="post-content">
+                <p>В мире криптовалют происходят революционные изменения. Ethereum 2.0 представляет собой значительное обновление сети, которое обещает решить проблемы масштабируемости и энергоэффективности. Это обновление знаменует новую эру в развитии децентрализованных приложений...</p>
+            </div>
             <small>Опубликовано: 15.02.2025</small>
         </div>
         <div class="post">
             <h2>DeFi: Революция финансовых систем</h2>
-            <p>Децентрализованные финансы продолжают трансформировать традиционную финансовую систему. Новые протоколы и инновационные решения открывают беспрецедентные возможности для пользователей по всему миру...</p>
+            <div class="post-preview">Децентрализованные финансы продолжают трансформировать традиционную...</div>
+            <div class="post-content">
+                <p>Децентрализованные финансы продолжают трансформировать традиционную финансовую систему. Новые протоколы и инновационные решения открывают беспрецедентные возможности для пользователей по всему миру...</p>
+            </div>
             <small>Опубликовано: 14.02.2025</small>
         </div>
     </div>
@@ -181,46 +202,28 @@
             }, totalAnimationTime * 1000);
         }
 
-        function createEthLogos(count) {
-            const ethSvgUrl = 'https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg';
-            
-            for (let i = 0; i < count; i++) {
-                const logo = document.createElement('img');
-                logo.className = 'eth-logo';
-                logo.src = ethSvgUrl;
-                logo.style.left = Math.random() * window.innerWidth + 'px';
-                logo.style.top = Math.random() * window.innerHeight + 'px';
-                document.getElementById('intro').appendChild(logo);
-                
-                animateLogo(logo);
-            }
-        }
-
-        function animateLogo(logo) {
-            let x = parseInt(logo.style.left);
-            let y = parseInt(logo.style.top);
-            let dx = (Math.random() - 0.5) * 5; // Увеличена скорость
-            let dy = (Math.random() - 0.5) * 5; // Увеличена скорость
-            let rotation = 0;
-
-            function move() {
-                x += dx;
-                y += dy;
-                rotation += 2; // Увеличена скорость вращения
-
-                if (x < 0 || x > window.innerWidth - 25) dx = -dx;
-                if (y < 0 || y > window.innerHeight - 25) dy = -dy;
-
-                logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-            }
-
-            setInterval(move, 16); // Уменьшен интервал для более плавного движения
-        }
-
         window.onload = function() {
             createLetterElements();
-            createEthLogos(30);
+            setupPosts();
         };
+
+        function setupPosts() {
+            const posts = document.querySelectorAll('.post');
+            let lastTap = 0;
+
+            posts.forEach(post => {
+                post.addEventListener('touchstart', function(e) {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    
+                    if (tapLength < 500 && tapLength > 0) {
+                        e.preventDefault();
+                        this.classList.toggle('expanded');
+                    }
+                    lastTap = currentTime;
+                });
+            });
+        }
 
         function setBackgroundImage(imageUrl) {
             document.getElementById('content').style.backgroundImage = `url(${imageUrl})`;
