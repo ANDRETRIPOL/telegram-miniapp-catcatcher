@@ -36,6 +36,8 @@
             font-family: 'Montserrat', sans-serif;
             touch-action: manipulation;
             transition: background-color 0.3s ease;
+            position: fixed;
+            overflow: hidden;
         }
 
         #controls {
@@ -152,7 +154,11 @@
             -webkit-overflow-scrolling: touch;
             height: 100vh;
             box-sizing: border-box;
-            padding-top: 80px; /* Added padding to prevent overlap with controls */
+            padding-top: 80px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
         }
 
         .post {
@@ -259,8 +265,24 @@
     </div>
 
     <script>
+        // Инициализация Telegram WebApp
         let tg = window.Telegram.WebApp;
-        tg.expand();
+
+        // Функция для настройки Telegram WebApp
+        function initializeTelegramWebApp() {
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                
+                // Устанавливаем обработчик изменения viewport
+                tg.onEvent('viewportChanged', function() {
+                    tg.expand();
+                });
+            }
+        }
+
+        // Вызываем инициализацию сразу после загрузки скрипта
+        initializeTelegramWebApp();
         
         // Управление размером шрифта
         let currentFontSize = 100;
@@ -296,6 +318,8 @@
                 setTimeout(() => {
                     document.getElementById('intro').style.display = 'none';
                     document.getElementById('content').style.display = 'block';
+                    // Повторно вызываем expand после появления контента
+                    tg.expand();
                 }, 1000);
             }, totalAnimationTime * 1000);
         }
@@ -324,9 +348,19 @@
             });
         }
 
+        // После загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTelegramWebApp();
+        });
+
+        // После полной загрузки страницы
         window.onload = function() {
             createLetterElements();
             setupPosts();
+            // Повторно вызываем expand после небольшой задержки
+            setTimeout(() => {
+                tg.expand();
+            }, 100);
         };
 
         function setBackgroundImage(imageUrl) {
