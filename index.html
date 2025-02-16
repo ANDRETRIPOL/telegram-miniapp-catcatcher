@@ -5,19 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>T-Crypto ℠</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+        :root {
+            --bg-color: #000;
+            --post-bg: rgba(22, 22, 26, 0.8);
+            --text-color: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --gradient-text: linear-gradient(45deg, #fff, #7cb9ff);
+        }
+
+        body.light-mode {
+            --bg-color: #fff;
+            --post-bg: rgba(245, 245, 245, 0.8);
+            --text-color: #000;
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --gradient-text: linear-gradient(45deg, #000, #0066cc);
+        }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: var(--bg-color);
             font-family: 'Montserrat', sans-serif;
             touch-action: manipulation;
+            transition: background-color 0.3s ease;
         }
 
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: var(--post-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        #theme-toggle {
+            overflow: hidden;
+            position: relative;
+        }
+
+        #theme-toggle i {
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        .fa-sun {
+            transform: translateY(0);
+        }
+
+        .fa-moon {
+            transform: translateY(40px);
+        }
+
+        body.light-mode .fa-sun {
+            transform: translateY(-40px);
+        }
+
+        body.light-mode .fa-moon {
+            transform: translateY(0);
+        }
+
+        /* Ваши существующие стили */
         #intro {
             position: fixed;
             top: 0;
@@ -28,7 +103,7 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
-            background: #000;
+            background: var(--bg-color);
             overflow: hidden;
         }
 
@@ -37,14 +112,13 @@
             justify-content: center;
             align-items: center;
             gap: 5px;
-            font-family: 'Montserrat', sans-serif;
         }
 
         .letter {
             font-size: 48px;
             opacity: 0;
             position: relative;
-            background: linear-gradient(45deg, #fff, #7cb9ff);
+            background: var(--gradient-text);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 600;
@@ -82,15 +156,15 @@
         }
 
         .post {
-            background: rgba(22, 22, 26, 0.8);
+            background: var(--post-bg);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 25px;
             margin: 30px auto;
             max-width: 600px;
-            color: white;
+            color: var(--text-color);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             transform: translateY(50px);
             opacity: 0;
             animation: postAppear 0.8s ease-out forwards;
@@ -114,7 +188,7 @@
         }
 
         .post-preview {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-color);
             margin: 10px 0;
         }
 
@@ -128,7 +202,7 @@
         .post h2 {
             margin: 0 0 15px 0;
             font-size: 24px;
-            background: linear-gradient(45deg, #fff, #7cb9ff);
+            background: var(--gradient-text);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 600;
@@ -137,20 +211,30 @@
         .post p {
             line-height: 1.6;
             margin: 0 0 20px 0;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-color);
             font-weight: 400;
         }
 
         .post small {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
             font-size: 14px;
             display: block;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border-color);
             padding-top: 15px;
         }
     </style>
 </head>
 <body>
+    <div id="controls">
+        <button id="theme-toggle" class="control-btn" title="Сменить тему">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+        <button id="font-size" class="control-btn" title="Изменить размер текста">
+            <i class="fas fa-text-height"></i>
+        </button>
+    </div>
+
     <div id="intro">
         <div id="title"></div>
     </div>
@@ -178,6 +262,33 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
+        // Управление размером шрифта
+        let currentFontSize = 100;
+        const fontSizeBtn = document.getElementById('font-size');
+        fontSizeBtn.addEventListener('click', () => {
+            currentFontSize = currentFontSize === 100 ? 125 : 100;
+            document.body.style.fontSize = `${currentFontSize}%`;
+        });
+
+        // Переключение темы
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+        });
+
+        // Полноэкранный режим
+        document.addEventListener('dblclick', (e) => {
+            if (!e.target.closest('.post')) {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('Ошибка полноэкранного режима:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
         function createLetterElements() {
             const word = "T-Crypto ℠";
             const titleElement = document.getElementById('title');
@@ -202,28 +313,34 @@
             }, totalAnimationTime * 1000);
         }
 
-        window.onload = function() {
-            createLetterElements();
-            setupPosts();
-        };
-
         function setupPosts() {
             const posts = document.querySelectorAll('.post');
             let lastTap = 0;
 
             posts.forEach(post => {
+                // Обработка касаний
                 post.addEventListener('touchstart', function(e) {
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
-                    
                     if (tapLength < 500 && tapLength > 0) {
                         e.preventDefault();
                         this.classList.toggle('expanded');
                     }
                     lastTap = currentTime;
                 });
+
+                // Обработка кликов мышью
+                post.addEventListener('dblclick', function(e) {
+                    e.stopPropagation(); // Предотвращаем включение полноэкранного режима
+                    this.classList.toggle('expanded');
+                });
             });
         }
+
+        window.onload = function() {
+            createLetterElements();
+            setupPosts();
+        };
 
         function setBackgroundImage(imageUrl) {
             document.getElementById('content').style.backgroundImage = `url(${imageUrl})`;
