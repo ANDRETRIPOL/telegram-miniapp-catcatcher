@@ -92,7 +92,6 @@
             transform: translateY(0);
         }
 
-        /* Ваши существующие стили */
         #intro {
             position: fixed;
             top: 0;
@@ -153,6 +152,7 @@
             -webkit-overflow-scrolling: touch;
             height: 100vh;
             box-sizing: border-box;
+            padding-top: 80px; /* Added padding to prevent overlap with controls */
         }
 
         .post {
@@ -276,19 +276,6 @@
             document.body.classList.toggle('light-mode');
         });
 
-        // Полноэкранный режим
-        document.addEventListener('dblclick', (e) => {
-            if (!e.target.closest('.post')) {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log('Ошибка полноэкранного режима:', err);
-                    });
-                } else {
-                    document.exitFullscreen();
-                }
-            }
-        });
-
         function createLetterElements() {
             const word = "T-Crypto ℠";
             const titleElement = document.getElementById('title');
@@ -331,7 +318,7 @@
 
                 // Обработка кликов мышью
                 post.addEventListener('dblclick', function(e) {
-                    e.stopPropagation(); // Предотвращаем включение полноэкранного режима
+                    e.preventDefault();
                     this.classList.toggle('expanded');
                 });
             });
