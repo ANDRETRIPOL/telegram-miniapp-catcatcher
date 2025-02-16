@@ -265,39 +265,40 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         let tg = window.Telegram.WebApp;
+        let appIsReady = false;
 
-        // Функция для настройки Telegram WebApp
+        // Функция инициализации Telegram WebApp
         function initializeTelegramWebApp() {
-            if (tg) {
+            return new Promise((resolve) => {
+                if (!tg) {
+                    console.log('Telegram WebApp не доступен');
+                    resolve(false);
+                    return;
+                }
+
+                // Сообщаем Telegram, что приложение готово
                 tg.ready();
-                tg.expand();
                 
-                // Устанавливаем обработчик изменения viewport
-                tg.onEvent('viewportChanged', function() {
-                    tg.expand();
-                });
-            }
+                // Пытаемся развернуть на весь экран несколько раз
+                let expandAttempts = 0;
+                const maxAttempts = 5;
+                
+                function tryExpand() {
+                    if (expandAttempts < maxAttempts) {
+                        tg.expand();
+                        expandAttempts++;
+                        setTimeout(tryExpand, 100);
+                    } else {
+                        resolve(true);
+                    }
+                }
+
+                tryExpand();
+            });
         }
 
-        // Вызываем инициализацию сразу после загрузки скрипта
-        initializeTelegramWebApp();
-        
-        // Управление размером шрифта
-        let currentFontSize = 100;
-        const fontSizeBtn = document.getElementById('font-size');
-        fontSizeBtn.addEventListener('click', () => {
-            currentFontSize = currentFontSize === 100 ? 125 : 100;
-            document.body.style.fontSize = `${currentFontSize}%`;
-        });
-
-        // Переключение темы
-        const themeToggle = document.getElementById('theme-toggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-        });
-
+        // Функция запуска анимации
         function createLetterElements() {
             const word = "T-Crypto ℠";
             const titleElement = document.getElementById('title');
@@ -318,18 +319,28 @@
                 setTimeout(() => {
                     document.getElementById('intro').style.display = 'none';
                     document.getElementById('content').style.display = 'block';
-                    // Повторно вызываем expand после появления контента
-                    tg.expand();
                 }, 1000);
             }, totalAnimationTime * 1000);
         }
 
+        // Основная функция инициализации
+        async function initialize() {
+            // Сначала инициализируем Telegram WebApp
+            appIsReady = await initializeTelegramWebApp();
+            
+            // Только после успешной инициализации запускаем анимацию
+            if (appIsReady) {
+                createLetterElements();
+                setupPosts();
+            }
+        }
+
+        // Остальные функции
         function setupPosts() {
             const posts = document.querySelectorAll('.post');
             let lastTap = 0;
 
             posts.forEach(post => {
-                // Обработка касаний
                 post.addEventListener('touchstart', function(e) {
                     const currentTime = new Date().getTime();
                     const tapLength = currentTime - lastTap;
@@ -340,7 +351,6 @@
                     lastTap = currentTime;
                 });
 
-                // Обработка кликов мышью
                 post.addEventListener('dblclick', function(e) {
                     e.preventDefault();
                     this.classList.toggle('expanded');
@@ -348,20 +358,29 @@
             });
         }
 
-        // После загрузки DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeTelegramWebApp();
+        // Управление размером шрифта
+        let currentFontSize = 100;
+        const fontSizeBtn = document.getElementById('font-size');
+        fontSizeBtn.addEventListener('click', () => {
+            currentFontSize = currentFontSize === 100 ? 125 : 100;
+            document.body.style.fontSize = `${currentFontSize}%`;
         });
 
-        // После полной загрузки страницы
-        window.onload = function() {
-            createLetterElements();
-            setupPosts();
-            // Повторно вызываем expand после небольшой задержки
-            setTimeout(() => {
+        // Переключение темы
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+        });
+
+        // Запускаем инициализацию после загрузки DOM
+        document.addEventListener('DOMContentLoaded', initialize);
+
+        // Обработчик изменения viewport
+        if (tg && tg.onEvent) {
+            tg.onEvent('viewportChanged', () => {
                 tg.expand();
-            }, 100);
-        };
+            });
+        }
 
         function setBackgroundImage(imageUrl) {
             document.getElementById('content').style.backgroundImage = `url(${imageUrl})`;
