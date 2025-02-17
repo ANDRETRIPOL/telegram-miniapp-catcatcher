@@ -68,6 +68,89 @@
             transform: scale(1.1);
         }
 
+        #search-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+            opacity: 0;
+            transition: all 0.5s ease;
+            display: none;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: var(--post-bg);
+            color: var(--text-color);
+            backdrop-filter: blur(10px);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #search-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(124, 185, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Эффект размытия при фокусе на поиск */
+        body.search-focus #content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        body.search-focus #content {
+            pointer-events: none;
+        }
+
+        body.search-focus #search-container {
+            z-index: 1001;
+        }
+
+        #close-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            display: none;
+            background: var(--post-bg);
+            border: none;
+            border-radius: 15px;
+            padding: 10px 15px;
+            color: var(--text-color);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #close-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(124, 185, 255, 0.3);
+        }
+
         #theme-toggle {
             overflow: hidden;
             position: relative;
@@ -143,6 +226,23 @@
             }
         }
 
+        @keyframes searchAppear {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px) scale(0.8);
+            }
+            50% {
+                transform: translateX(-50%) translateY(5px) scale(1.05);
+            }
+            70% {
+                transform: translateX(-50%) translateY(-2px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
         #content {
             display: none;
             padding: 20px;
@@ -174,23 +274,51 @@
             transform: translateY(50px);
             opacity: 0;
             animation: postAppear 0.8s ease-out forwards;
-            transition: all 0.3s ease-out;
+            transition: all 0.5s ease-out;
             cursor: pointer;
             overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Новая анимация для найденного поста */
+        @keyframes foundPostAppear {
+            0% {
+                transform: scale(0.8);
+                filter: blur(10px);
+                opacity: 0;
+            }
+            50% {
+                filter: blur(0);
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        .post.search-match {
+            animation: foundPostAppear 0.8s forwards;
         }
 
         .post.expanded {
+            max-width: min(800px, 90%);
             transform: scale(1.02);
+            transition: max-width 0.5s ease-out, transform 0.3s ease-out;
         }
 
         .post-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 1.5s ease-out;
+            font-size: 16px;
         }
 
         .post.expanded .post-content {
-            max-height: 1000px;
+            max-height: 10000px; /* Увеличенное значение для длинного контента */
         }
 
         .post-preview {
@@ -219,6 +347,8 @@
             margin: 0 0 20px 0;
             color: var(--text-color);
             font-weight: 400;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .post small {
@@ -227,6 +357,96 @@
             display: block;
             border-top: 1px solid var(--border-color);
             padding-top: 15px;
+        }
+
+        .post.hidden {
+            display: none;
+        }
+
+        .single-post-view .post:not(.active) {
+            display: none;
+        }
+
+        /* Стиль для кнопки ориентации */
+        #rotate-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: none;  /* По умолчанию скрыта */
+            background: var(--post-bg);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        #rotate-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Адаптивная верстка */
+        @media (orientation: landscape) {
+            .post {
+                max-width: 600px;
+            }
+            
+            .post.expanded {
+                max-width: min(800px, 90%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .letter {
+                font-size: 36px;
+            }
+            
+            .post h2 {
+                font-size: 20px;
+            }
+            
+            .post {
+                padding: 20px;
+                max-width: 90%;
+            }
+            
+            #rotate-btn {
+                display: flex;  /* Показываем на мобильных */
+            }
+            
+            .post.expanded {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .letter {
+                font-size: 28px;
+            }
+            
+            #search-container {
+                width: 90%;
+            }
+            
+            .post {
+                padding: 15px;
+                margin: 20px auto;
+                max-width: 95%;
+            }
+            
+            .post p {
+                font-size: 15px;
+            }
+            
+            .post.expanded {
+                max-width: 98%;
+            }
         }
     </style>
 </head>
@@ -241,66 +461,43 @@
         </button>
     </div>
 
+    <button id="rotate-btn" class="control-btn" title="Сменить ориентацию">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Поиск...">
+    </div>
+
+    <button id="close-btn">Назад</button>
+
     <div id="intro">
         <div id="title"></div>
     </div>
 
     <div id="content">
         <div class="post">
-            <h2>XRP на взрыве: SEC отходит в сторону, и мы, блядь, мчимся к новым ATH!</h2>
-            <div class="post-preview">XRP может в ближайшее время задать жару на рынке....</div>
+            <h2>Ethereum 2.0: Будущее криптовалют</h2>
+            <div class="post-preview">В мире криптовалют происходят революционные изменения...</div>
             <div class="post-content">
-                <p>XRP на взрыве: SEC отходит в сторону, и мы, блядь, мчимся к новым ATH!
-
-Йо, криптососы! С вами криптан, который уже 6 лет гоняется за этой ебанутой криптой, и сегодня я расскажу, как XRP может в ближайшее время задать жару на рынке. Готовьтесь, потому что новости жаркие, как адская печка, и если вы думали, что SEC будет вечно нас долбить своими судебными разборками, то, сука, пора просыпаться: регуляторы начинают менять свою гребаную позицию!
-
-SEC: Отказ от старых обид и новый виток оптимизма
-
-Наконец-то эти гребаные хищники из SEC, которые до этого не давали нам покоя своими тупыми исковыми делами, немного смягчились. Да, мать его, изменения в их подходе к регулированию крипты подают сигнал, что XRP может обрести свободу и наконец перестать быть жертвой бюрократической задницы. Это, сука, огромный шаг вперёд: институциональные инвесторы уже глазели на XRP с интересом, а теперь, когда давление немного спало, можно ожидать, что рынок скажет «ну, наконец-то, пошли вы нахуй со своими старыми запретами!»
-
-Понимаете, когда регулятор начинает понимать, что крипта – не просто игрушка для лузеров, а реальный актив с потенциалом, это как увидеть, что после бесконечного похмелья наконец появляется шанс на нормальную жизнь. Конечно, не все сразу станет розовыми единорогами, но хотя бы первые проблески оптимизма уже видны.
-
-Технический анализ: Прорыв через порог 3,40 – или пора садиться на яйца?
-
-Сейчас цена XRP колеблется где-то около 2,74–2,76 доллара, и, блядь, все взгляды прикованы к тому, чтобы этот гребаный актив разогнался и пробил ключевой барьер в 3,40 доллара. Если этот уровень будет преодолен, можно ожидать настоящий бычий импульс, который заставит даже самых седых трейдеров прыгать от радости (или, по крайней мере, от удивления).
-
-Хоть 100-дневная простая скользящая средняя уже была побита, а 50 EMA сегодня, как никогда, держит крепость на уровне 2,65 доллара, но мы все знаем, что технический анализ – это не магия, а набор индикаторов, который может, как и всё в этом рынке, неожиданно пойти ко дну. Если XRP сохранит своё движение и пробьёт сопротивление, это будет сигналом для нас, криптососов, что пора открывать бутылку хорошего, ебанутого шампанского и готовиться к новому ралли.
-
-Прогнозы аналитиков: Новый ATH или очередная хуита?
-
-Ну а теперь, сука, перейдём к самому сочному: прогнозам аналитиков, которые, блядь, уверяют, что XRP может взлететь до 5,80 долларов! Да, звучит почти как сказка для наивных, но если учитывать, что на кону стоят изменения в регулировании и техническая сила актива, то эта перспектива выглядит вполне реальной.
-
-Конечно, кто-то может сказать: «Да это же очередной пиздец, не верю!» Но если учесть, что за последние пару лет мы привыкли к тому, что криптовалютный рынок может нас обвести вокруг пальца, то даже такая хуйня, как прогноз в 5,80 долларов, может стать реальностью, если двигаться в ногу с тенденциями. Главное – не забывать, что каждая новость на этом рынке сопровождается своим набором неожиданностей и обвалов, поэтому держите уши востро и не позвольте себе расслабиться.
-
-Рыночные показатели: Капитализация на уровне миллиардов и объемы, которые не спят
-
-Хоть 24-часовой объем торгов XRP снизился на 49% до 3,83 миллиарда долларов, актив всё равно демонстрирует свою силу. Рыночная капитализация в 158,71 миллиарда долларов говорит сама за себя: даже если краткосрочные объемы иногда подкачивают, долгосрочные инвесторы явно не собираются списывать XRP со счетов.
-
-Это как смотреть на похмелье после бурной ночи: сначала болит голова, потом понимаешь, что вчерашний оттяг все-таки имел смысл. Инвесторы понимают, что временные спады – это часть игры, а стабильное присутствие актива на ключевых уровнях поддержки заставляет поверить, что впереди нас ждут новые высоты.
-
-Прорыв 50 EMA: Начало новой эры или миф для слабаков?
-
-Если говорить о технических сигналах, то прорыв XRP выше 50-дневной EMA – это как увидеть, что на горизонте появляется хоть какой-то нормальный прогноз. Этот индикатор, который ранее служил и поддержкой, и сопротивлением, теперь указывает на возможность долгосрочного бычьего тренда.
-
-Это как если бы вы, наконец, увидели, что ваша мать перестала ругать вас за каждую малейшую ошибку – понимаешь, что мир начинает меняться в лучшую сторону. Если XRP сможет удержаться выше 2,65 доллара и продолжить ралли, то можно ожидать, что дальше пойдут не просто консолидации, а настоящий скачок, который разнесет рынок в пух и прах. Конечно, всё это звучит как очередной хайп, но в нашем криптомире, где каждое движение может быть последним, даже маленький прорыв превращается в настоящий праздник для быков.
-
-Заключение: Жги, XRP, пока SEC не решил опять ебаться с нами!
-
-Короче, криптососы, если суммировать всё выше сказанное: новости для XRP сегодня – это настоящий заряд адреналина для крипто-мира. Изменения в подходе SEC, технические сигналы и оптимистичные прогнозы аналитиков создают ту самую смесь, которая может привести XRP к новому ATH. Конечно, рынок остаётся непредсказуемым, как мать его, сумасшедший цирк, где каждый день можно увидеть и трико, и цирковых клоунов, но если вы, как и я, верите в силу крипты и не боитесь рисковать, то сейчас самое время набрать обороты.
-
-Да, впереди могут быть моменты, когда всё пойдёт наперекосяк, и мы, нахрен, снова окажемся в гуще событий, где каждый трейд – это битва за выживание. Но если есть шанс, что XRP наконец-то взорвётся и покажет всем этим сукам, что крипта – это не просто игрушка для спекулянтов, то мы должны быть готовы к этому с головой (и с кучей проклятий в запасе).
-
-Так что, держите уши востро, проверяйте графики, и, мать его, готовьтесь к тому, что XRP может вскоре вырваться в новую эру. Пусть SEC продолжает тупеть, а мы будем наслаждаться каждым моментом этого безумного крипто-рок-н-ролла. Вперёд, к новым высотам, и пусть каждая сделка будет как удачный удар по ебаной системе!
-
-Оставайтесь на связи, не забывайте, что крипта – это наша жизнь, и даже если мир вокруг нас полон хуйни, мы всегда найдём способ посмеяться в лицо судьбе и заработать на этом. За вами – будущее, а за будущим – ещё больше возможностей для тех, кто не боится брать быка за рога!</p>
+                <p>В мире криптовалют происходят революционные изменения. Ethereum 2.0 представляет собой значительное обновление сети, которое обещает решить проблемы масштабируемости и энергоэффективности. Это обновление знаменует новую эру в развитии децентрализованных приложений и смарт-контрактов.</p>
+                <p>Переход от Proof of Work (PoW) к Proof of Stake (PoS) является ключевым элементом обновления. Это снизит энергопотребление сети на 99%, что сделает Ethereum намного более экологичным. Кроме того, технология шардинга позволит значительно увеличить пропускную способность сети, что приведет к более низким комиссиям и более быстрым транзакциям.</p>
+                <p>Для владельцев ETH переход к Ethereum 2.0 представляет новые возможности для заработка через стейкинг. Теперь держатели ETH могут получать пассивный доход, помогая поддерживать безопасность сети. Множество сервисов предлагают решения для стейкинга без необходимости запуска собственного валидатора, что делает участие доступным для более широкого круга пользователей.</p>
+                <p>Обновление также способствует расширению экосистемы DeFi (децентрализованных финансов), предоставляя более надежную и эффективную инфраструктуру для финансовых приложений следующего поколения. Это открывает двери для инноваций, которые могут преобразовать традиционные финансовые услуги и сделать их более доступными во всем мире.</p>
+                <p>Разработчики активно готовятся к переходу, адаптируя свои приложения и смарт-контракты для работы в новой среде. Сообщество ожидает значительных улучшений в производительности и эффективности, что приведет к более плавному пользовательскому опыту и более широкому принятию технологии блокчейн.</p>
             </div>
-            <small>Опубликовано: 16.02.2025</small>
+            <small>Опубликовано: 15.02.2025</small>
         </div>
         <div class="post">
             <h2>DeFi: Революция финансовых систем</h2>
             <div class="post-preview">Децентрализованные финансы продолжают трансформировать традиционную...</div>
             <div class="post-content">
-                <p>Децентрализованные финансы продолжают трансформировать традиционную финансовую систему. Новые протоколы и инновационные решения открывают беспрецедентные возможности для пользователей по всему миру...</p>
+                <p>Децентрализованные финансы продолжают трансформировать традиционную финансовую систему. Новые протоколы и инновационные решения открывают беспрецедентные возможности для пользователей по всему миру. Ключевые платформы, такие как Aave, Compound и Uniswap, демонстрируют устойчивый рост, привлекая все больше ликвидности и активных пользователей.</p>
+                <p>Одной из самых значимых тенденций в области DeFi является внедрение решений Layer 2, которые значительно снижают комиссии за транзакции и увеличивают скорость их обработки. Это делает децентрализованные финансовые сервисы более доступными для широкого круга пользователей, а не только для крупных инвесторов.</p>
+                <p>Межсетевая совместимость становится ключевым фактором развития экосистемы. Протоколы, обеспечивающие бесшовное перемещение активов между различными блокчейнами, стимулируют создание более взаимосвязанной и эффективной финансовой инфраструктуры. Это открывает новые возможности для арбитража, ликвидности и инвестиционных стратегий.</p>
+                <p>Регуляторный ландшафт также эволюционирует, с различными юрисдикциями, разрабатывающими нормативные рамки для DeFi. Это создает как вызовы, так и возможности для участников рынка. Проекты, которые успешно балансируют между инновациями и соответствием регуляторным требованиям, имеют наилучшие перспективы долгосрочного развития.</p>
+                <p>Институциональный интерес к DeFi продолжает расти, с традиционными финансовыми учреждениями, исследующими возможности интеграции децентрализованных протоколов в свои услуги. Это приносит дополнительную ликвидность и легитимность в экосистему, способствуя ее дальнейшему росту и развитию.</p>
+                <p>Будущее децентрализованных финансов выглядит многообещающим, с потенциалом для более глубокой интеграции с традиционными финансовыми системами и расширения доступа к финансовым услугам для недостаточно обслуживаемых сообществ по всему миру. Эволюция DeFi продолжает демонстрировать трансформативную силу блокчейн-технологий в финансовом секторе.</p>
             </div>
             <small>Опубликовано: 14.02.2025</small>
         </div>
@@ -308,36 +505,15 @@ SEC: Отказ от старых обид и новый виток оптими
 
     <script>
         let tg = window.Telegram.WebApp;
-        let appIsReady = false;
 
         // Функция инициализации Telegram WebApp
         function initializeTelegramWebApp() {
-            return new Promise((resolve) => {
-                if (!tg) {
-                    console.log('Telegram WebApp не доступен');
-                    resolve(false);
-                    return;
-                }
-
-                // Сообщаем Telegram, что приложение готово
-                tg.ready();
-                
-                // Пытаемся развернуть на весь экран несколько раз
-                let expandAttempts = 0;
-                const maxAttempts = 5;
-                
-                function tryExpand() {
-                    if (expandAttempts < maxAttempts) {
-                        tg.expand();
-                        expandAttempts++;
-                        setTimeout(tryExpand, 100);
-                    } else {
-                        resolve(true);
-                    }
-                }
-
-                tryExpand();
-            });
+            if (!tg) {
+                console.log('Telegram WebApp не доступен');
+                return false;
+            }
+            tg.ready();
+            return true;
         }
 
         // Функция запуска анимации
@@ -361,40 +537,103 @@ SEC: Отказ от старых обид и новый виток оптими
                 setTimeout(() => {
                     document.getElementById('intro').style.display = 'none';
                     document.getElementById('content').style.display = 'block';
+                    
+                    // Показываем поиск с анимацией после загрузки контента
+                    const searchContainer = document.getElementById('search-container');
+                    searchContainer.style.display = 'block';
+                    setTimeout(() => {
+                        searchContainer.style.animation = 'searchAppear 0.8s forwards ease-out';
+                    }, 300);
                 }, 1000);
             }, totalAnimationTime * 1000);
         }
 
-        // Основная функция инициализации
-        async function initialize() {
-            // Сначала инициализируем Telegram WebApp
-            appIsReady = await initializeTelegramWebApp();
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const posts = document.querySelectorAll('.post');
+            const closeBtn = document.getElementById('close-btn');
+            const content = document.getElementById('content');
+
+            // Показываем/скрываем кнопку Назад при поиске
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                if (searchTerm === '') {
+                    posts.forEach(post => {
+                        post.classList.remove('hidden', 'search-match');
+                    });
+                    content.classList.remove('single-post-view');
+                    closeBtn.style.display = 'none';
+                    posts.forEach(post => post.classList.remove('active', 'expanded'));
+                } else {
+                    posts.forEach(post => {
+                        const title = post.querySelector('h2').textContent.toLowerCase();
+                        
+                        if (title.includes(searchTerm)) {
+                            post.classList.remove('hidden');
+                            
+                            // Если точное совпадение, показать как активный с красивой анимацией
+                            if (title === searchTerm) {
+                                content.classList.add('single-post-view');
+                                post.classList.add('active', 'expanded', 'search-match');
+                                closeBtn.style.display = 'flex';
+                            }
+                        } else {
+                            post.classList.add('hidden');
+                            post.classList.remove('search-match');
+                        }
+                    });
+                    
+                    // Если есть результаты поиска, показать кнопку Назад
+                    const visiblePosts = document.querySelectorAll('.post:not(.hidden)');
+                    if (visiblePosts.length > 0 && searchTerm !== '') {
+                        closeBtn.style.display = 'flex';
+                    } else {
+                        closeBtn.style.display = 'none';
+                    }
+                }
+            });
+
+            // Эффект фокуса на поиск
+            searchInput.addEventListener('focus', () => {
+                document.body.classList.add('search-focus');
+                searchInput.style.transform = 'scale(1.05)';
+            });
             
-            // Только после успешной инициализации запускаем анимацию
-            if (appIsReady) {
-                createLetterElements();
-                setupPosts();
-            }
+            searchInput.addEventListener('blur', () => {
+                document.body.classList.remove('search-focus');
+                searchInput.style.transform = 'scale(1)';
+            });
+
+            // Нажатие кнопки "Назад"
+            closeBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                content.classList.remove('single-post-view');
+                closeBtn.style.display = 'none';
+                posts.forEach(post => {
+                    post.classList.remove('hidden', 'active', 'expanded', 'search-match');
+                });
+                // Убираем фокус с поиска и сбрасываем размер
+                searchInput.blur();
+            });
         }
 
-        // Остальные функции
+        // Основная функция инициализации
+        function initialize() {
+            initializeTelegramWebApp();
+            createLetterElements();
+            setupPosts();
+            setupSearch();
+            setupRotationButton();
+            setupTouchHandling();
+        }
+
+        // Настройка постов
         function setupPosts() {
             const posts = document.querySelectorAll('.post');
-            let lastTap = 0;
 
             posts.forEach(post => {
-                post.addEventListener('touchstart', function(e) {
-                    const currentTime = new Date().getTime();
-                    const tapLength = currentTime - lastTap;
-                    if (tapLength < 500 && tapLength > 0) {
-                        e.preventDefault();
-                        this.classList.toggle('expanded');
-                    }
-                    lastTap = currentTime;
-                });
-
-                post.addEventListener('dblclick', function(e) {
-                    e.preventDefault();
+                post.addEventListener('click', function() {
                     this.classList.toggle('expanded');
                 });
             });
@@ -414,19 +653,76 @@ SEC: Отказ от старых обид и новый виток оптими
             document.body.classList.toggle('light-mode');
         });
 
-        // Запускаем инициализацию после загрузки DOM
-        document.addEventListener('DOMContentLoaded', initialize);
+        // Настройка кнопки смены ориентации
+        function setupRotationButton() {
+            const rotateBtn = document.getElementById('rotate-btn');
+            
+            // Показываем кнопку только на мобильных устройствах
+            if (window.innerWidth <= 768) {
+                rotateBtn.style.display = 'flex';
+            }
+            
+            rotateBtn.addEventListener('click', () => {
+                // Попытка запросить полноэкранный режим с изменением ориентации
+                const doc = window.document;
+                const docElem = doc.documentElement;
 
-        // Обработчик изменения viewport
-        if (tg && tg.onEvent) {
-            tg.onEvent('viewportChanged', () => {
-                tg.expand();
+                if (docElem.requestFullscreen) {
+                    docElem.requestFullscreen();
+                } else if (docElem.mozRequestFullScreen) {
+                    docElem.mozRequestFullScreen();
+                } else if (docElem.webkitRequestFullscreen) {
+                    docElem.webkitRequestFullscreen();
+                } else if (docElem.msRequestFullscreen) {
+                    docElem.msRequestFullscreen();
+                }
+
+                // Попытка изменить ориентацию, если API доступен
+                if (window.screen && window.screen.orientation) {
+                    try {
+                        if (window.screen.orientation.type.includes('portrait')) {
+                            window.screen.orientation.lock('landscape');
+                        } else {
+                            window.screen.orientation.lock('portrait');
+                        }
+                    } catch (error) {
+                        console.log('Не удалось изменить ориентацию:', error);
+                    }
+                } else {
+                    // Альтернативный способ (работает только в некоторых браузерах)
+                    if (window.orientation === 0 || window.orientation === 180) {
+                        alert('Поверните устройство в горизонтальное положение');
+                    } else {
+                        alert('Поверните устройство в вертикальное положение');
+                    }
+                }
             });
         }
 
-        function setBackgroundImage(imageUrl) {
-            document.getElementById('content').style.backgroundImage = `url(${imageUrl})`;
+        // Настройка обработки тач-событий для более плавной работы на мобильных
+        function setupTouchHandling() {
+            const content = document.getElementById('content');
+            
+            // Предотвращаем случайные скроллы для лучшего UX
+            content.addEventListener('touchmove', (e) => {
+                if (document.body.classList.contains('search-focus')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // Оптимизируем для мобильных устройств
+            window.addEventListener('resize', () => {
+                // Проверяем размер окна и адаптируем интерфейс
+                if (window.innerWidth <= 768) {
+                    document.getElementById('rotate-btn').style.display = 'flex';
+                } else {
+                    document.getElementById('rotate-btn').style.display = 'none';
+                }
+            });
         }
+
+        // Запускаем инициализацию после загрузки DOM
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
